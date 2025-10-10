@@ -1,0 +1,37 @@
+{
+  "name": "vue-admin",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/colors": "^7.0.0",
+    "@ant-design/icons-vue": "^7.0.1",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "next",
+    "ant-design-vue": "^4.0.0",
+    "axios": "^1.6.0",
+    "dayjs": "^1.11.13",
+    "echarts": "^5.6.0",
+    "event-source-polyfill": "^1.0.31",
+    "path": "^0.12.7",
+    "pinia": "^2.1.0",
+    "pinia-plugin-persistedstate": "^4.2.0",
+    "signature_pad": "^5.0.4",
+    "vue": "^3.3.0",
+    "vue-echarts": "^7.0.3",
+    "vue-router": "^4.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.0",
+    "unplugin-auto-import": "^0.17.3",
+    "unplugin-vue-components": "^0.26.0",
+    "unplugin-vue-define-options": "^1.5.5",
+    "vite": "^5.0.0",
+    "vite-plugin-vue-setup-extend": "^0.4.0"
+  }
+}

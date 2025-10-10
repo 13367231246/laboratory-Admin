@@ -1,0 +1,46 @@
+.ant-menu-item {
+  font-size: 16px !important; /* 调整菜单项字体大小 */
+}
+
+.ant-menu-item .anticon {
+  font-size: 18px !important; /* 调整图标大小 */
+}
+
+/* 选中状态的字体大小保持一致 */
+.ant-menu-item-selected {
+  font-size: 16px !important;
+}
+
+.menu-list {
+  height: 50px;
+  background: var(--el-bg-color);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.menu-list .el-menu {
+  border: none;
+  background: transparent;
+}
+
+.menu-list .el-menu--horizontal > .el-menu-item {
+  height: 50px;
+  line-height: 50px;
+  border-bottom: 2px solid transparent;
+}
+
+.menu-list .el-menu--horizontal > .el-menu-item.is-active {
+  border-bottom: 2px solid var(--el-color-primary);
+  font-weight: 500;
+}
+
+.menu-list .el-menu--horizontal > .el-menu-item:hover {
+  background: var(--el-color-primary-light-9);
+}
+
+.menu-list .el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
+  height: 50px;
+  line-height: 50px;
+}
