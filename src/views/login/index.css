@@ -67,14 +67,39 @@
   color: rgba(0, 0, 0, 0.45);
 }
 
-.verification-code-input {
-  display: flex;
-  gap: 10px;
+.login-tip {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: 4px;
+  text-align: center;
 }
 
-.get-code-btn {
-  flex-shrink: 0;
-  width: 120px;
+.login-tip p {
+  margin: 0;
+  color: #52c41a;
+  font-size: 14px;
+}
+
+.login-tip strong {
+  color: #389e0d;
+  font-weight: 600;
+}
+
+/* 密码输入框样式 */
+:deep(.ant-input-password) {
+  border-radius: 4px;
+}
+
+:deep(.ant-input-password .ant-input) {
+  border: none;
+  box-shadow: none;
+}
+
+:deep(.ant-input-password:focus-within) {
+  border-color: #40a9ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }
 
 .login-footer {

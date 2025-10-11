@@ -20,7 +20,7 @@
     "event-source-polyfill": "^1.0.31",
     "path": "^0.12.7",
     "pinia": "^2.1.0",
-    "pinia-plugin-persistedstate": "^4.2.0",
+    "pinia-plugin-persistedstate": "^3.2.0",
     "signature_pad": "^5.0.4",
     "vue": "^3.3.0",
     "vue-echarts": "^7.0.3",
