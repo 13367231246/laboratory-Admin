@@ -5,11 +5,7 @@
       <a-row :gutter="16" style="margin-bottom: 24px">
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic
-              title="待处理"
-              :value="feedbackStats.pending"
-              :value-style="{ color: '#faad14' }"
-            >
+            <a-statistic title="待处理" :value="feedbackStats.pending" :value-style="{ color: '#faad14' }">
               <template #prefix>
                 <clock-circle-outlined />
               </template>
@@ -18,11 +14,7 @@
         </a-col>
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic
-              title="处理中"
-              :value="feedbackStats.processing"
-              :value-style="{ color: '#1890ff' }"
-            >
+            <a-statistic title="处理中" :value="feedbackStats.processing" :value-style="{ color: '#1890ff' }">
               <template #prefix>
                 <loading-outlined />
               </template>
@@ -31,11 +23,7 @@
         </a-col>
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic
-              title="已解决"
-              :value="feedbackStats.resolved"
-              :value-style="{ color: '#52c41a' }"
-            >
+            <a-statistic title="已解决" :value="feedbackStats.resolved" :value-style="{ color: '#52c41a' }">
               <template #prefix>
                 <check-circle-outlined />
               </template>
@@ -44,12 +32,7 @@
         </a-col>
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic
-              title="满意度"
-              :value="feedbackStats.satisfaction"
-              suffix="%"
-              :value-style="{ color: '#722ed1' }"
-            >
+            <a-statistic title="满意度" :value="feedbackStats.satisfaction" suffix="%" :value-style="{ color: '#722ed1' }">
               <template #prefix>
                 <heart-outlined />
               </template>
@@ -60,66 +43,35 @@
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-row :gutter="16">
-          <a-col :span="6">
-            <a-input
-              v-model:value="searchForm.title"
-              placeholder="搜索反馈标题"
-              allow-clear
-              @change="handleSearch"
-            >
-              <template #prefix>
-                <search-outlined />
-              </template>
-            </a-input>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.type"
-              placeholder="选择类型"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="complaint">投诉</a-select-option>
-              <a-select-option value="suggestion">建议</a-select-option>
-              <a-select-option value="bug">故障报告</a-select-option>
-              <a-select-option value="praise">表扬</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.status"
-              placeholder="选择状态"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="pending">待处理</a-select-option>
-              <a-select-option value="processing">处理中</a-select-option>
-              <a-select-option value="resolved">已解决</a-select-option>
-              <a-select-option value="closed">已关闭</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-button type="primary" @click="handleSearch">
-              <search-outlined />
-              搜索
-            </a-button>
-            <a-button style="margin-left: 8px" @click="handleReset">
-              重置
-            </a-button>
-          </a-col>
-        </a-row>
+        <a-input v-model:value="searchForm.title" placeholder="搜索反馈标题" allow-clear @change="handleSearch" class="search-input">
+          <template #prefix>
+            <search-outlined />
+          </template>
+        </a-input>
+
+        <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="complaint">投诉</a-select-option>
+          <a-select-option value="suggestion">建议</a-select-option>
+          <a-select-option value="bug">故障报告</a-select-option>
+          <a-select-option value="praise">表扬</a-select-option>
+        </a-select>
+
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="pending">待处理</a-select-option>
+          <a-select-option value="processing">处理中</a-select-option>
+          <a-select-option value="resolved">已解决</a-select-option>
+          <a-select-option value="closed">已关闭</a-select-option>
+        </a-select>
+
+        <a-button type="primary" @click="handleSearch">
+          <search-outlined />
+          搜索
+        </a-button>
+        <a-button style="margin-left: 8px" @click="handleReset"> 重置 </a-button>
       </div>
 
       <!-- 反馈列表 -->
-      <a-table
-        :columns="columns"
-        :data-source="filteredFeedback"
-        :pagination="pagination"
-        :loading="loading"
-        row-key="id"
-        @change="handleTableChange"
-      >
+      <a-table :columns="columns" :data-source="filteredFeedback" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'type'">
             <a-tag :color="getTypeColor(record.type)">
@@ -141,35 +93,12 @@
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleView(record)">
-                查看
-              </a-button>
-              <a-button type="link" size="small" @click="handleReply(record)">
-                回复
-              </a-button>
-              <a-button 
-                v-if="record.status === 'pending'" 
-                type="link" 
-                size="small" 
-                @click="handleProcess(record)"
-              >
-                处理
-              </a-button>
-              <a-button 
-                v-if="record.status === 'processing'" 
-                type="link" 
-                size="small" 
-                @click="handleResolve(record)"
-              >
-                解决
-              </a-button>
-              <a-popconfirm
-                title="确定要关闭该反馈吗？"
-                @confirm="handleClose(record)"
-              >
-                <a-button type="link" size="small" danger>
-                  关闭
-                </a-button>
+              <a-button type="link" size="small" @click="handleView(record)"> 查看 </a-button>
+              <a-button type="link" size="small" @click="handleReply(record)"> 回复 </a-button>
+              <a-button v-if="record.status === 'pending'" type="link" size="small" @click="handleProcess(record)"> 处理 </a-button>
+              <a-button v-if="record.status === 'processing'" type="link" size="small" @click="handleResolve(record)"> 解决 </a-button>
+              <a-popconfirm title="确定要关闭该反馈吗？" @confirm="handleClose(record)">
+                <a-button type="link" size="small" danger> 关闭 </a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -178,12 +107,7 @@
     </a-card>
 
     <!-- 反馈详情模态框 -->
-    <a-modal
-      v-model:open="viewModalVisible"
-      title="反馈详情"
-      width="800px"
-      :footer="null"
-    >
+    <a-modal v-model:open="viewModalVisible" title="反馈详情" width="800px" :footer="null">
       <div v-if="currentFeedback" class="feedback-detail">
         <a-descriptions :column="2">
           <a-descriptions-item label="反馈标题">{{ currentFeedback.title }}</a-descriptions-item>
@@ -231,24 +155,10 @@
     </a-modal>
 
     <!-- 回复反馈模态框 -->
-    <a-modal
-      v-model:open="replyModalVisible"
-      title="回复反馈"
-      @ok="handleReplyOk"
-      @cancel="handleReplyCancel"
-    >
-      <a-form
-        ref="replyFormRef"
-        :model="replyData"
-        :rules="replyRules"
-        layout="vertical"
-      >
+    <a-modal v-model:open="replyModalVisible" title="回复反馈" @ok="handleReplyOk" @cancel="handleReplyCancel">
+      <a-form ref="replyFormRef" :model="replyData" :rules="replyRules" layout="vertical">
         <a-form-item label="回复内容" name="content">
-          <a-textarea
-            v-model:value="replyData.content"
-            placeholder="请输入回复内容"
-            :rows="4"
-          />
+          <a-textarea v-model:value="replyData.content" placeholder="请输入回复内容" :rows="4" />
         </a-form-item>
         <a-form-item label="处理状态" name="status">
           <a-select v-model:value="replyData.status">
@@ -265,13 +175,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
-import { 
-  SearchOutlined,
-  ClockCircleOutlined,
-  LoadingOutlined,
-  CheckCircleOutlined,
-  HeartOutlined
-} from '@ant-design/icons-vue'
+import { SearchOutlined, ClockCircleOutlined, LoadingOutlined, CheckCircleOutlined, HeartOutlined } from '@ant-design/icons-vue'
 
 const loading = ref(false)
 const viewModalVisible = ref(false)
@@ -433,17 +337,15 @@ const filteredFeedback = computed(() => {
   let result = feedback.value
 
   if (searchForm.title) {
-    result = result.filter(item => 
-      item.title.toLowerCase().includes(searchForm.title.toLowerCase())
-    )
+    result = result.filter((item) => item.title.toLowerCase().includes(searchForm.title.toLowerCase()))
   }
 
   if (searchForm.type) {
-    result = result.filter(item => item.type === searchForm.type)
+    result = result.filter((item) => item.type === searchForm.type)
   }
 
   if (searchForm.status) {
-    result = result.filter(item => item.status === searchForm.status)
+    result = result.filter((item) => item.status === searchForm.status)
   }
 
   return result
@@ -525,15 +427,13 @@ const loadFeedback = async () => {
 
 // 更新统计
 const updateStats = () => {
-  feedbackStats.pending = feedback.value.filter(item => item.status === 'pending').length
-  feedbackStats.processing = feedback.value.filter(item => item.status === 'processing').length
-  feedbackStats.resolved = feedback.value.filter(item => item.status === 'resolved').length
-  
-  const totalSatisfaction = feedback.value
-    .filter(item => item.satisfaction > 0)
-    .reduce((sum, item) => sum + item.satisfaction, 0)
-  const satisfactionCount = feedback.value.filter(item => item.satisfaction > 0).length
-  feedbackStats.satisfaction = satisfactionCount > 0 ? Math.round(totalSatisfaction / satisfactionCount * 20) : 0
+  feedbackStats.pending = feedback.value.filter((item) => item.status === 'pending').length
+  feedbackStats.processing = feedback.value.filter((item) => item.status === 'processing').length
+  feedbackStats.resolved = feedback.value.filter((item) => item.status === 'resolved').length
+
+  const totalSatisfaction = feedback.value.filter((item) => item.satisfaction > 0).reduce((sum, item) => sum + item.satisfaction, 0)
+  const satisfactionCount = feedback.value.filter((item) => item.satisfaction > 0).length
+  feedbackStats.satisfaction = satisfactionCount > 0 ? Math.round((totalSatisfaction / satisfactionCount) * 20) : 0
 }
 
 // 搜索
@@ -599,7 +499,7 @@ const handleClose = (record) => {
 const handleReplyOk = async () => {
   try {
     await replyFormRef.value.validate()
-    
+
     if (currentFeedback.value) {
       const reply = {
         id: Date.now(),
@@ -607,12 +507,12 @@ const handleReplyOk = async () => {
         time: new Date().toISOString().split('T')[0],
         content: replyData.content
       }
-      
+
       if (!currentFeedback.value.replies) {
         currentFeedback.value.replies = []
       }
       currentFeedback.value.replies.push(reply)
-      
+
       currentFeedback.value.status = replyData.status
       updateStats()
       message.success('回复成功')
@@ -695,6 +595,18 @@ onMounted(() => {
   background-color: #f5f5f5;
   border-radius: 4px;
   line-height: 1.5;
+}
+
+.search-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #fafafa;
+  border-radius: 6px;
+}
+.search-input {
+  width: 240px;
 }
 
 :deep(.ant-table-thead > tr > th) {

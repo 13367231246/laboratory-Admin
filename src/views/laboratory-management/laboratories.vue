@@ -16,65 +16,34 @@
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-row :gutter="16">
-          <a-col :span="6">
-            <a-input
-              v-model:value="searchForm.name"
-              placeholder="搜索实验室名称"
-              allow-clear
-              @change="handleSearch"
-            >
-              <template #prefix>
-                <search-outlined />
-              </template>
-            </a-input>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.status"
-              placeholder="选择状态"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="available">可用</a-select-option>
-              <a-select-option value="maintenance">维护中</a-select-option>
-              <a-select-option value="closed">关闭</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.type"
-              placeholder="选择类型"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="chemistry">化学</a-select-option>
-              <a-select-option value="physics">物理</a-select-option>
-              <a-select-option value="biology">生物</a-select-option>
-              <a-select-option value="computer">计算机</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-button type="primary" @click="handleSearch">
-              <search-outlined />
-              搜索
-            </a-button>
-            <a-button style="margin-left: 8px" @click="handleReset">
-              重置
-            </a-button>
-          </a-col>
-        </a-row>
+        <a-input v-model:value="searchForm.name" placeholder="搜索实验室名称" allow-clear @change="handleSearch" class="search-input">
+          <template #prefix>
+            <search-outlined />
+          </template>
+        </a-input>
+
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="available">可用</a-select-option>
+          <a-select-option value="maintenance">维护中</a-select-option>
+          <a-select-option value="closed">关闭</a-select-option>
+        </a-select>
+
+        <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="chemistry">化学</a-select-option>
+          <a-select-option value="physics">物理</a-select-option>
+          <a-select-option value="biology">生物</a-select-option>
+          <a-select-option value="computer">计算机</a-select-option>
+        </a-select>
+
+        <a-button type="primary" @click="handleSearch">
+          <search-outlined />
+          搜索
+        </a-button>
+        <a-button style="margin-left: 8px" @click="handleReset"> 重置 </a-button>
       </div>
 
       <!-- 实验室列表 -->
-      <a-table
-        :columns="columns"
-        :data-source="filteredLaboratories"
-        :pagination="pagination"
-        :loading="loading"
-        row-key="id"
-        @change="handleTableChange"
-      >
+      <a-table :columns="columns" :data-source="filteredLaboratories" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'image'">
             <a-image
@@ -91,38 +60,19 @@
             </a-tag>
           </template>
           <template v-else-if="column.key === 'capacity'">
-            <a-progress 
-              :percent="(record.currentUsers / record.capacity) * 100" 
-              :show-info="false"
-              size="small"
-            />
+            <a-progress :percent="(record.currentUsers / record.capacity) * 100" :show-info="false" size="small" />
             <span style="margin-left: 8px">{{ record.currentUsers }}/{{ record.capacity }}</span>
           </template>
           <template v-else-if="column.key === 'equipment'">
             <a-space wrap>
-              <a-tag v-for="item in record.equipment.slice(0, 2)" :key="item" color="blue">
-                {{ item }}
-              </a-tag>
-              <a-tag v-if="record.equipment.length > 2" color="default">
-                +{{ record.equipment.length - 2 }}
-              </a-tag>
+              <a-tag v-for="it in getEquipmentListWithCounts(record.equipment, record.equipmentCounts).slice(0, 2)" :key="it.name" color="blue"> {{ it.name }} x{{ it.count }} </a-tag>
+              <a-tag v-if="getEquipmentListWithCounts(record.equipment, record.equipmentCounts).length > 2" color="default"> +{{ getEquipmentListWithCounts(record.equipment, record.equipmentCounts).length - 2 }} </a-tag>
             </a-space>
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleView(record)">
-                查看
-              </a-button>
-              <a-button type="link" size="small" @click="handleEdit(record)">
-                编辑
-              </a-button>
-              <a-button type="link" size="small" @click="handleSchedule(record)">
-                排课
-              </a-button>
-              <a-popconfirm
-                :title="`确定要${record.status === 'available' ? '关闭' : '启用'}该实验室吗？`"
-                @confirm="handleToggleStatus(record)"
-              >
+              <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
+              <a-popconfirm :title="`确定要${record.status === 'available' ? '关闭' : '启用'}该实验室吗？`" @confirm="handleToggleStatus(record)">
                 <a-button type="link" size="small" :danger="record.status === 'available'">
                   {{ record.status === 'available' ? '关闭' : '启用' }}
                 </a-button>
@@ -134,19 +84,8 @@
     </a-card>
 
     <!-- 添加/编辑实验室模态框 -->
-    <a-modal
-      v-model:open="modalVisible"
-      :title="isEdit ? '编辑实验室' : '添加实验室'"
-      width="800px"
-      @ok="handleModalOk"
-      @cancel="handleModalCancel"
-    >
-      <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        layout="vertical"
-      >
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑实验室' : '添加实验室'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
+      <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="实验室名称" name="name">
@@ -196,33 +135,28 @@
         </a-row>
 
         <a-form-item label="设备列表" name="equipment">
-          <a-select
-            v-model:value="formData.equipment"
-            mode="tags"
-            placeholder="输入设备名称，按回车添加"
-            style="width: 100%"
-          >
+          <a-select v-model:value="formData.equipment" mode="tags" placeholder="输入设备名称，按回车添加" style="width: 100%">
             <a-select-option v-for="item in equipmentOptions" :key="item" :value="item">
               {{ item }}
             </a-select-option>
           </a-select>
+          <a-form-item-rest>
+            <div v-if="formData.equipment.length" style="margin-top: 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px">
+              <div v-for="name in formData.equipment" :key="name" style="display: flex; align-items: center; gap: 8px">
+                <a-tag color="blue">{{ name }}</a-tag>
+                <span>数量</span>
+                <a-input-number :value="formData.equipmentCounts[name]" :min="1" :max="9999" style="width: 100px" @update:value="(val) => (formData.equipmentCounts[name] = Number(val) || 1)" />
+              </div>
+            </div>
+          </a-form-item-rest>
         </a-form-item>
 
         <a-form-item label="描述" name="description">
-          <a-textarea
-            v-model:value="formData.description"
-            placeholder="请输入实验室描述"
-            :rows="3"
-          />
+          <a-textarea v-model:value="formData.description" placeholder="请输入实验室描述" :rows="3" />
         </a-form-item>
 
         <a-form-item label="图片" name="image">
-          <a-upload
-            v-model:file-list="fileList"
-            list-type="picture-card"
-            :before-upload="beforeUpload"
-            @preview="handlePreview"
-          >
+          <a-upload v-model:file-list="fileList" list-type="picture-card" :before-upload="beforeUpload" @preview="handlePreview">
             <div v-if="fileList.length < 1">
               <plus-outlined />
               <div style="margin-top: 8px">上传图片</div>
@@ -240,13 +174,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { message } from 'ant-design-vue'
-import { 
-  PlusOutlined, 
-  SearchOutlined,
-  UploadOutlined
-} from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { mockApi } from '@/api/mockData'
 
 const loading = ref(false)
@@ -273,10 +203,7 @@ const pagination = reactive({
 })
 
 // 设备选项
-const equipmentOptions = [
-  '显微镜', '离心机', '电子天平', '示波器', '万用表', '信号发生器',
-  '培养箱', '分光光度计', 'pH计', '恒温箱', '干燥箱', '超净工作台'
-]
+const equipmentOptions = ['显微镜', '离心机', '电子天平', '示波器', '万用表', '信号发生器', '培养箱', '分光光度计', 'pH计', '恒温箱', '干燥箱', '超净工作台']
 
 // 表格列配置
 const columns = [
@@ -334,6 +261,7 @@ const formData = reactive({
   type: '',
   status: 'available',
   equipment: [],
+  equipmentCounts: {},
   description: '',
   image: ''
 })
@@ -373,17 +301,15 @@ const filteredLaboratories = computed(() => {
   let result = laboratories.value
 
   if (searchForm.name) {
-    result = result.filter(lab => 
-      lab.name.toLowerCase().includes(searchForm.name.toLowerCase())
-    )
+    result = result.filter((lab) => lab.name.toLowerCase().includes(searchForm.name.toLowerCase()))
   }
 
   if (searchForm.status) {
-    result = result.filter(lab => lab.status === searchForm.status)
+    result = result.filter((lab) => lab.status === searchForm.status)
   }
 
   if (searchForm.type) {
-    result = result.filter(lab => lab.type === searchForm.type)
+    result = result.filter((lab) => lab.type === searchForm.type)
   }
 
   return result
@@ -394,11 +320,9 @@ const loadLaboratories = async () => {
   loading.value = true
   try {
     const response = await mockApi.getLaboratories()
-    laboratories.value = response.data.map(lab => ({
+    laboratories.value = response.data.map((lab) => ({
       ...lab,
-      type: lab.name.includes('化学') ? 'chemistry' : 
-            lab.name.includes('物理') ? 'physics' : 
-            lab.name.includes('生物') ? 'biology' : 'computer',
+      type: lab.name.includes('化学') ? 'chemistry' : lab.name.includes('物理') ? 'physics' : lab.name.includes('生物') ? 'biology' : 'computer',
       currentUsers: Math.floor(Math.random() * lab.capacity),
       image: ''
     }))
@@ -444,27 +368,33 @@ const showAddModal = () => {
     type: '',
     status: 'available',
     equipment: [],
+    equipmentCounts: {},
     description: '',
     image: ''
   })
-}
-
-// 查看实验室
-const handleView = (record) => {
-  message.info(`查看实验室：${record.name}`)
 }
 
 // 编辑实验室
 const handleEdit = (record) => {
   isEdit.value = true
   modalVisible.value = true
-  Object.assign(formData, record)
+  // 兼容旧数据：若没有 equipmentCounts，基于 equipment 生成计数
+  const counts =
+    record.equipmentCounts && Object.keys(record.equipmentCounts).length
+      ? { ...record.equipmentCounts }
+      : (() => {
+          const map = new Map()
+          ;(Array.isArray(record.equipment) ? record.equipment : []).forEach((name) => {
+            map.set(name, (map.get(name) || 0) + 1)
+          })
+          return Object.fromEntries(map.entries())
+        })()
+  Object.assign(formData, {
+    ...record,
+    equipment: Array.isArray(record.equipment) ? record.equipment : [],
+    equipmentCounts: counts
+  })
   fileList.value = record.image ? [{ url: record.image }] : []
-}
-
-// 排课
-const handleSchedule = (record) => {
-  message.info(`为实验室 ${record.name} 排课`)
 }
 
 // 切换状态
@@ -504,12 +434,16 @@ const handlePreview = (file) => {
 const handleModalOk = async () => {
   try {
     await formRef.value.validate()
-    
+
     if (isEdit.value) {
       // 编辑实验室
-      const index = laboratories.value.findIndex(lab => lab.id === formData.id)
+      const index = laboratories.value.findIndex((lab) => lab.id === formData.id)
       if (index > -1) {
-        Object.assign(laboratories.value[index], formData)
+        Object.assign(laboratories.value[index], {
+          ...formData,
+          equipment: [...formData.equipment],
+          equipmentCounts: { ...formData.equipmentCounts }
+        })
         message.success('实验室更新成功')
       }
     } else {
@@ -518,12 +452,14 @@ const handleModalOk = async () => {
         ...formData,
         id: Date.now(),
         currentUsers: 0,
-        image: fileList.value[0]?.url || ''
+        image: fileList.value[0]?.url || '',
+        equipment: [...formData.equipment],
+        equipmentCounts: { ...formData.equipmentCounts }
       }
       laboratories.value.unshift(newLab)
       message.success('实验室添加成功')
     }
-    
+
     modalVisible.value = false
   } catch (error) {
     console.error('表单验证失败:', error)
@@ -540,6 +476,36 @@ const handleModalCancel = () => {
 onMounted(() => {
   loadLaboratories()
 })
+
+// 选中设备变化时，自动维护数量（新增默认 1，移除同步删除）
+watch(
+  () => formData.equipment,
+  (newList) => {
+    // 添加默认数量
+    for (const name of newList) {
+      if (!(name in formData.equipmentCounts)) formData.equipmentCounts[name] = 1
+    }
+    // 延迟清理未选中的键，避免与控件更新时机冲突
+    nextTick(() => {
+      Object.keys(formData.equipmentCounts).forEach((k) => {
+        if (!newList.includes(k)) delete formData.equipmentCounts[k]
+      })
+    })
+  },
+  { deep: true }
+)
+
+// 将设备数组或计数对象转换为带数量的列表
+const getEquipmentListWithCounts = (equipment, equipmentCounts) => {
+  if (equipmentCounts && Object.keys(equipmentCounts).length > 0) {
+    return Object.entries(equipmentCounts).map(([name, count]) => ({ name, count }))
+  }
+  const map = new Map()
+  ;(Array.isArray(equipment) ? equipment : []).forEach((name) => {
+    map.set(name, (map.get(name) || 0) + 1)
+  })
+  return Array.from(map.entries()).map(([name, count]) => ({ name, count }))
+}
 </script>
 
 <style scoped>
@@ -553,10 +519,15 @@ onMounted(() => {
 }
 
 .search-section {
+  display: flex;
+  gap: 10px;
   margin-bottom: 16px;
   padding: 16px;
   background-color: #fafafa;
   border-radius: 6px;
+}
+.search-input {
+  width: 240px;
 }
 
 :deep(.ant-table-thead > tr > th) {

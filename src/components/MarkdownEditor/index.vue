@@ -17,7 +17,7 @@
 import { computed, ref, watch } from 'vue'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import { updateFile } from '@/api/infra/file'
+// import { updateFile } from '@/api/infra/file'
 import { message } from 'ant-design-vue'
 
 // 定义props
@@ -124,18 +124,18 @@ const handleUploadImg = async (files, callback) => {
       const formData = new FormData()
       formData.append('file', file)
 
-      try {
-        const uploadRes = await updateFile(formData)
-        if (uploadRes.code === 0 && uploadRes.data) {
-          // 构建完整的文件URL
-          const fileUrl = uploadRes.data.url || uploadRes.data
-          return `${import.meta.env.VITE_BASE_URL}/admin-api${fileUrl}`
-        }
-        throw new Error(uploadRes.msg || '上传失败')
-      } catch (error) {
-        message.error(`图片上传失败: ${error.message}`)
-        return ''
-      }
+      // try {
+      //   const uploadRes = await updateFile(formData)
+      //   if (uploadRes.code === 0 && uploadRes.data) {
+      //     // 构建完整的文件URL
+      //     const fileUrl = uploadRes.data.url || uploadRes.data
+      //     return `${import.meta.env.VITE_BASE_URL}/admin-api${fileUrl}`
+      //   }
+      //   throw new Error(uploadRes.msg || '上传失败')
+      // } catch (error) {
+      //   message.error(`图片上传失败: ${error.message}`)
+      //   return ''
+      // }
     })
   )
 

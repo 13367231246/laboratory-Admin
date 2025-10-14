@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 import { resolve } from 'path'
 import VueSetupExtend from 'vite-plugin-vue-setup-extend'
+import sass from 'sass-embedded'
 
 // 配置函数现在接收 mode 参数，用于加载对应环境的变量
 export default defineConfig(({ mode }) => {
@@ -38,6 +39,14 @@ export default defineConfig(({ mode }) => {
         '@': resolve(__dirname, 'src')
       }
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          javascriptEnabled: true,
+          silenceDeprecations: ['legacy-js-api'] // 参考自 https://stackoverflow.com/questions/78997907/the-legacy-js-api-is-deprecated-and-will-be-removed-in-dart-sass-2-0-0
+        }
+      }
+    },
     server: {
       port: 3000,
       // 开发服务器代理配置
@@ -49,7 +58,9 @@ export default defineConfig(({ mode }) => {
           ws: true, // 代理 websocket
           rewrite: (path) => path.replace(/^\/api/, '') // 重写路径，去掉 /api 前缀
         }
-      }
+      },
+      open: true,
+      cors: true
     }
   }
 })

@@ -49,26 +49,6 @@
       </a-table>
     </a-card>
 
-    <!-- 时间表预览 -->
-    <a-card title="时间表预览" class="page-card" style="margin-top: 24px">
-      <div class="schedule-preview">
-        <a-calendar v-model:value="selectedDate" :fullscreen="false">
-          <template #dateCellRender="{ current }">
-            <div class="date-cell">
-              <div class="date-info">
-                <div class="date-number">{{ current.date() }}</div>
-                <div class="date-slots">
-                  <a-tag v-for="slot in getDateSlots(current)" :key="slot" size="small" color="blue">
-                    {{ slot }}
-                  </a-tag>
-                </div>
-              </div>
-            </div>
-          </template>
-        </a-calendar>
-      </div>
-    </a-card>
-
     <!-- 添加/编辑时间规则模态框 -->
     <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑时间规则' : '添加时间规则'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
@@ -181,7 +161,6 @@ const batchModalVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 const batchFormRef = ref()
-const selectedDate = ref(dayjs())
 
 // 数据
 const laboratories = ref([])
@@ -301,27 +280,6 @@ const getTypeText = (type) => {
     maintenance: '维护时间'
   }
   return texts[type] || type
-}
-
-// 获取实验室名称
-const getLaboratoryName = (laboratoryId) => {
-  const lab = laboratories.value.find((l) => l.id === laboratoryId)
-  return lab ? lab.name : '未知'
-}
-
-// 获取日期时间段
-const getDateSlots = (date) => {
-  const dateStr = date.format('YYYY-MM-DD')
-  const rules = timeRules.value.filter((rule) => rule.status === 'active' && date.isAfter(dayjs(rule.startDate).subtract(1, 'day')) && date.isBefore(dayjs(rule.endDate).add(1, 'day')))
-
-  if (rules.length === 0) return []
-
-  const slots = new Set()
-  rules.forEach((rule) => {
-    rule.timeSlots.forEach((slot) => slots.add(slot))
-  })
-
-  return Array.from(slots)
 }
 
 // 加载数据
@@ -543,32 +501,6 @@ onMounted(() => {
 .page-card {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.schedule-preview {
-  padding: 16px;
-}
-
-.date-cell {
-  padding: 4px;
-}
-
-.date-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.date-number {
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.date-slots {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  justify-content: center;
 }
 
 .time-slots-config {

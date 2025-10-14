@@ -18,11 +18,7 @@
       <a-row :gutter="16" style="margin-bottom: 24px">
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic
-              title="待维护"
-              :value="maintenanceStats.pending"
-              :value-style="{ color: '#faad14' }"
-            >
+            <a-statistic title="待维护" :value="maintenanceStats.pending" :value-style="{ color: '#faad14' }">
               <template #prefix>
                 <clock-circle-outlined />
               </template>
@@ -31,11 +27,7 @@
         </a-col>
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic
-              title="进行中"
-              :value="maintenanceStats.inProgress"
-              :value-style="{ color: '#1890ff' }"
-            >
+            <a-statistic title="进行中" :value="maintenanceStats.inProgress" :value-style="{ color: '#1890ff' }">
               <template #prefix>
                 <loading-outlined />
               </template>
@@ -44,11 +36,7 @@
         </a-col>
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic
-              title="已完成"
-              :value="maintenanceStats.completed"
-              :value-style="{ color: '#52c41a' }"
-            >
+            <a-statistic title="已完成" :value="maintenanceStats.completed" :value-style="{ color: '#52c41a' }">
               <template #prefix>
                 <check-circle-outlined />
               </template>
@@ -57,11 +45,7 @@
         </a-col>
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic
-              title="超期"
-              :value="maintenanceStats.overdue"
-              :value-style="{ color: '#f5222d' }"
-            >
+            <a-statistic title="超期" :value="maintenanceStats.overdue" :value-style="{ color: '#f5222d' }">
               <template #prefix>
                 <exclamation-circle-outlined />
               </template>
@@ -72,66 +56,35 @@
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-row :gutter="16">
-          <a-col :span="6">
-            <a-input
-              v-model:value="searchForm.title"
-              placeholder="搜索维护任务"
-              allow-clear
-              @change="handleSearch"
-            >
-              <template #prefix>
-                <search-outlined />
-              </template>
-            </a-input>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.status"
-              placeholder="选择状态"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="pending">待维护</a-select-option>
-              <a-select-option value="inProgress">进行中</a-select-option>
-              <a-select-option value="completed">已完成</a-select-option>
-              <a-select-option value="overdue">超期</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.type"
-              placeholder="选择类型"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="routine">常规维护</a-select-option>
-              <a-select-option value="repair">故障维修</a-select-option>
-              <a-select-option value="cleaning">清洁保养</a-select-option>
-              <a-select-option value="inspection">安全检查</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-button type="primary" @click="handleSearch">
-              <search-outlined />
-              搜索
-            </a-button>
-            <a-button style="margin-left: 8px" @click="handleReset">
-              重置
-            </a-button>
-          </a-col>
-        </a-row>
+        <a-input v-model:value="searchForm.title" placeholder="搜索维护任务" allow-clear @change="handleSearch" class="search-input">
+          <template #prefix>
+            <search-outlined />
+          </template>
+        </a-input>
+
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="pending">待维护</a-select-option>
+          <a-select-option value="inProgress">进行中</a-select-option>
+          <a-select-option value="completed">已完成</a-select-option>
+          <a-select-option value="overdue">超期</a-select-option>
+        </a-select>
+
+        <a-select v-model:value="searchForm.priority" placeholder="选择优先级" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="low">低</a-select-option>
+          <a-select-option value="medium">中</a-select-option>
+          <a-select-option value="high">高</a-select-option>
+          <a-select-option value="urgent">紧急</a-select-option>
+        </a-select>
+
+        <a-button type="primary" @click="handleSearch">
+          <search-outlined />
+          搜索
+        </a-button>
+        <a-button style="margin-left: 8px" @click="handleReset"> 重置 </a-button>
       </div>
 
       <!-- 维护任务列表 -->
-      <a-table
-        :columns="columns"
-        :data-source="filteredMaintenance"
-        :pagination="pagination"
-        :loading="loading"
-        row-key="id"
-        @change="handleTableChange"
-      >
+      <a-table :columns="columns" :data-source="filteredMaintenance" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-tag :color="getStatusColor(record.status)">
@@ -149,44 +102,17 @@
             </a-tag>
           </template>
           <template v-else-if="column.key === 'progress'">
-            <a-progress 
-              :percent="record.progress" 
-              :show-info="false"
-              size="small"
-            />
+            <a-progress :percent="record.progress" :show-info="false" size="small" />
             <span style="margin-left: 8px">{{ record.progress }}%</span>
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleView(record)">
-                查看
-              </a-button>
-              <a-button type="link" size="small" @click="handleEdit(record)">
-                编辑
-              </a-button>
-              <a-button 
-                v-if="record.status === 'pending'" 
-                type="link" 
-                size="small" 
-                @click="handleStart(record)"
-              >
-                开始
-              </a-button>
-              <a-button 
-                v-if="record.status === 'inProgress'" 
-                type="link" 
-                size="small" 
-                @click="handleComplete(record)"
-              >
-                完成
-              </a-button>
-              <a-popconfirm
-                title="确定要删除该维护任务吗？"
-                @confirm="handleDelete(record)"
-              >
-                <a-button type="link" size="small" danger>
-                  删除
-                </a-button>
+              <a-button type="link" size="small" @click="handleView(record)"> 查看 </a-button>
+              <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
+              <a-button v-if="record.status === 'pending'" type="link" size="small" @click="handleStart(record)"> 开始 </a-button>
+              <a-button v-if="record.status === 'inProgress'" type="link" size="small" @click="handleComplete(record)"> 完成 </a-button>
+              <a-popconfirm title="确定要删除该维护任务吗？" @confirm="handleDelete(record)">
+                <a-button type="link" size="small" danger> 删除 </a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -195,19 +121,8 @@
     </a-card>
 
     <!-- 添加/编辑维护任务模态框 -->
-    <a-modal
-      v-model:open="modalVisible"
-      :title="isEdit ? '编辑维护任务' : '添加维护任务'"
-      width="800px"
-      @ok="handleModalOk"
-      @cancel="handleModalCancel"
-    >
-      <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        layout="vertical"
-      >
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑维护任务' : '添加维护任务'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
+      <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="任务标题" name="title">
@@ -279,19 +194,11 @@
         </a-row>
 
         <a-form-item label="维护内容" name="description">
-          <a-textarea
-            v-model:value="formData.description"
-            placeholder="请详细描述维护内容"
-            :rows="4"
-          />
+          <a-textarea v-model:value="formData.description" placeholder="请详细描述维护内容" :rows="4" />
         </a-form-item>
 
         <a-form-item label="备注" name="remark">
-          <a-textarea
-            v-model:value="formData.remark"
-            placeholder="请输入备注信息"
-            :rows="2"
-          />
+          <a-textarea v-model:value="formData.remark" placeholder="请输入备注信息" :rows="2" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -302,15 +209,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
-import { 
-  PlusOutlined, 
-  SearchOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
-  LoadingOutlined,
-  CheckCircleOutlined,
-  ExclamationCircleOutlined
-} from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined, CalendarOutlined, ClockCircleOutlined, LoadingOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue'
 import { mockApi } from '@/api/mockData'
 
 const loading = ref(false)
@@ -357,11 +256,6 @@ const columns = [
     width: 100
   },
   {
-    title: '状态',
-    key: 'status',
-    width: 100
-  },
-  {
     title: '优先级',
     dataIndex: 'priority',
     key: 'priority',
@@ -373,16 +267,17 @@ const columns = [
     key: 'assignee',
     width: 120
   },
-  {
-    title: '进度',
-    key: 'progress',
-    width: 150
-  },
+
   {
     title: '计划时间',
     dataIndex: 'plannedStartDate',
     key: 'plannedStartDate',
     width: 150
+  },
+  {
+    title: '状态',
+    key: 'status',
+    width: 100
   },
   {
     title: '操作',
@@ -487,17 +382,15 @@ const filteredMaintenance = computed(() => {
   let result = maintenance.value
 
   if (searchForm.title) {
-    result = result.filter(item => 
-      item.title.toLowerCase().includes(searchForm.title.toLowerCase())
-    )
+    result = result.filter((item) => item.title.toLowerCase().includes(searchForm.title.toLowerCase()))
   }
 
   if (searchForm.status) {
-    result = result.filter(item => item.status === searchForm.status)
+    result = result.filter((item) => item.status === searchForm.status)
   }
 
   if (searchForm.type) {
-    result = result.filter(item => item.type === searchForm.type)
+    result = result.filter((item) => item.type === searchForm.type)
   }
 
   return result
@@ -506,7 +399,7 @@ const filteredMaintenance = computed(() => {
 // 筛选后的设备数据
 const filteredEquipment = computed(() => {
   if (!formData.laboratoryId) return equipment.value
-  return equipment.value.filter(item => item.laboratoryId === formData.laboratoryId)
+  return equipment.value.filter((item) => item.laboratoryId === formData.laboratoryId)
 })
 
 // 加载数据
@@ -582,10 +475,10 @@ const loadData = async () => {
 
 // 更新统计
 const updateStats = () => {
-  maintenanceStats.pending = maintenance.value.filter(item => item.status === 'pending').length
-  maintenanceStats.inProgress = maintenance.value.filter(item => item.status === 'inProgress').length
-  maintenanceStats.completed = maintenance.value.filter(item => item.status === 'completed').length
-  maintenanceStats.overdue = maintenance.value.filter(item => item.status === 'overdue').length
+  maintenanceStats.pending = maintenance.value.filter((item) => item.status === 'pending').length
+  maintenanceStats.inProgress = maintenance.value.filter((item) => item.status === 'inProgress').length
+  maintenanceStats.completed = maintenance.value.filter((item) => item.status === 'completed').length
+  maintenanceStats.overdue = maintenance.value.filter((item) => item.status === 'overdue').length
 }
 
 // 搜索
@@ -661,7 +554,7 @@ const handleComplete = (record) => {
 
 // 删除任务
 const handleDelete = (record) => {
-  const index = maintenance.value.findIndex(item => item.id === record.id)
+  const index = maintenance.value.findIndex((item) => item.id === record.id)
   if (index > -1) {
     maintenance.value.splice(index, 1)
     updateStats()
@@ -678,10 +571,10 @@ const handleScheduleMaintenance = () => {
 const handleModalOk = async () => {
   try {
     await formRef.value.validate()
-    
+
     if (isEdit.value) {
       // 编辑任务
-      const index = maintenance.value.findIndex(item => item.id === formData.id)
+      const index = maintenance.value.findIndex((item) => item.id === formData.id)
       if (index > -1) {
         Object.assign(maintenance.value[index], {
           ...formData,
@@ -704,7 +597,7 @@ const handleModalOk = async () => {
       updateStats()
       message.success('维护任务添加成功')
     }
-    
+
     modalVisible.value = false
   } catch (error) {
     console.error('表单验证失败:', error)
@@ -739,10 +632,15 @@ onMounted(() => {
 }
 
 .search-section {
+  display: flex;
+  gap: 10px;
   margin-bottom: 16px;
   padding: 16px;
   background-color: #fafafa;
   border-radius: 6px;
+}
+.search-input {
+  width: 240px;
 }
 
 :deep(.ant-table-thead > tr > th) {

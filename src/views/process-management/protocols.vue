@@ -16,37 +16,29 @@
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-row :gutter="16">
-          <a-col :span="6">
-            <a-input v-model:value="searchForm.title" placeholder="搜索协议标题" allow-clear @change="handleSearch">
-              <template #prefix>
-                <search-outlined />
-              </template>
-            </a-input>
-          </a-col>
-          <a-col :span="6">
-            <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch">
-              <a-select-option value="usage">使用协议</a-select-option>
-              <a-select-option value="safety">安全协议</a-select-option>
-              <a-select-option value="maintenance">维护协议</a-select-option>
-              <a-select-option value="emergency">应急协议</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch">
-              <a-select-option value="draft">草稿</a-select-option>
-              <a-select-option value="published">已发布</a-select-option>
-              <a-select-option value="archived">已归档</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-button type="primary" @click="handleSearch">
-              <search-outlined />
-              搜索
-            </a-button>
-            <a-button style="margin-left: 8px" @click="handleReset"> 重置 </a-button>
-          </a-col>
-        </a-row>
+        <a-input v-model:value="searchForm.title" placeholder="搜索协议标题" allow-clear @change="handleSearch" class="search-input">
+          <template #prefix>
+            <search-outlined />
+          </template>
+        </a-input>
+
+        <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="usage">使用协议</a-select-option>
+          <a-select-option value="safety">安全协议</a-select-option>
+          <a-select-option value="maintenance">维护协议</a-select-option>
+          <a-select-option value="emergency">应急协议</a-select-option>
+        </a-select>
+
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="draft">草稿</a-select-option>
+          <a-select-option value="published">已发布</a-select-option>
+        </a-select>
+
+        <a-button type="primary" @click="handleSearch">
+          <search-outlined />
+          搜索
+        </a-button>
+        <a-button style="margin-left: 8px" @click="handleReset"> 重置 </a-button>
       </div>
 
       <!-- 协议列表 -->
@@ -72,7 +64,6 @@
               <a-button type="link" size="small" @click="handleView(record)"> 查看 </a-button>
               <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
               <a-button v-if="record.status === 'draft'" type="link" size="small" @click="handlePublish(record)"> 发布 </a-button>
-              <a-button v-if="record.status === 'published'" type="link" size="small" @click="handleArchive(record)"> 归档 </a-button>
               <a-popconfirm title="确定要删除该协议吗？" @confirm="handleDelete(record)">
                 <a-button type="link" size="small" danger> 删除 </a-button>
               </a-popconfirm>
@@ -335,8 +326,7 @@ const getStatusColor = (status) => {
 const getStatusText = (status) => {
   const texts = {
     draft: '草稿',
-    published: '已发布',
-    archived: '已归档'
+    published: '已发布'
   }
   return texts[status] || status
 }
@@ -496,12 +486,6 @@ const handlePublish = (record) => {
   message.success('协议发布成功')
 }
 
-// 归档协议
-const handleArchive = (record) => {
-  record.status = 'archived'
-  message.success('协议已归档')
-}
-
 // 删除协议
 const handleDelete = (record) => {
   const index = protocols.value.findIndex((protocol) => protocol.id === record.id)
@@ -587,10 +571,15 @@ onMounted(() => {
 }
 
 .search-section {
+  display: flex;
+  gap: 10px;
   margin-bottom: 16px;
   padding: 16px;
   background-color: #fafafa;
   border-radius: 6px;
+}
+.search-input {
+  width: 240px;
 }
 
 .protocol-detail {

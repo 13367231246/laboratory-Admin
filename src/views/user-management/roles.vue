@@ -10,64 +10,30 @@
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-row :gutter="16">
-          <a-col :span="6">
-            <a-input
-              v-model:value="searchForm.username"
-              placeholder="搜索用户"
-              allow-clear
-              @change="handleSearch"
-            >
-              <template #prefix>
-                <search-outlined />
-              </template>
-            </a-input>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.role"
-              placeholder="选择角色"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="admin">管理员</a-select-option>
-              <a-select-option value="teacher">教师</a-select-option>
-              <a-select-option value="student">学生</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.laboratory"
-              placeholder="选择实验室"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option v-for="lab in laboratories" :key="lab.id" :value="lab.id">
-                {{ lab.name }}
-              </a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-button type="primary" @click="handleSearch">
-              <search-outlined />
-              搜索
-            </a-button>
-            <a-button style="margin-left: 8px" @click="handleReset">
-              重置
-            </a-button>
-          </a-col>
-        </a-row>
+        <a-input v-model:value="searchForm.username" placeholder="搜索用户" allow-clear @change="handleSearch" class="search-input">
+          <template #prefix>
+            <search-outlined />
+          </template>
+        </a-input>
+        <a-select v-model:value="searchForm.role" placeholder="选择角色" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="admin">管理员</a-select-option>
+          <a-select-option value="teacher">教师</a-select-option>
+          <a-select-option value="student">学生</a-select-option>
+        </a-select>
+        <a-select v-model:value="searchForm.laboratory" placeholder="选择实验室" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option v-for="lab in laboratories" :key="lab.id" :value="lab.id">
+            {{ lab.name }}
+          </a-select-option>
+        </a-select>
+        <a-button type="primary" @click="handleSearch">
+          <search-outlined />
+          搜索
+        </a-button>
+        <a-button style="margin-left: 8px" @click="handleReset"> 重置 </a-button>
       </div>
 
       <!-- 角色分配列表 -->
-      <a-table
-        :columns="columns"
-        :data-source="filteredAssignments"
-        :pagination="pagination"
-        :loading="loading"
-        row-key="id"
-        @change="handleTableChange"
-      >
+      <a-table :columns="columns" :data-source="filteredAssignments" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'user'">
             <div class="user-info">
@@ -97,24 +63,14 @@
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleEdit(record)">
-                编辑
-              </a-button>
-              <a-popconfirm
-                :title="`确定要${record.status === 'active' ? '禁用' : '启用'}该分配吗？`"
-                @confirm="handleToggleStatus(record)"
-              >
+              <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
+              <a-popconfirm :title="`确定要${record.status === 'active' ? '禁用' : '启用'}该分配吗？`" @confirm="handleToggleStatus(record)">
                 <a-button type="link" size="small" :danger="record.status === 'active'">
                   {{ record.status === 'active' ? '禁用' : '启用' }}
                 </a-button>
               </a-popconfirm>
-              <a-popconfirm
-                title="确定要删除该分配吗？"
-                @confirm="handleDelete(record)"
-              >
-                <a-button type="link" size="small" danger>
-                  删除
-                </a-button>
+              <a-popconfirm title="确定要删除该分配吗？" @confirm="handleDelete(record)">
+                <a-button type="link" size="small" danger> 删除 </a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -123,42 +79,19 @@
     </a-card>
 
     <!-- 分配角色模态框 -->
-    <a-modal
-      v-model:open="modalVisible"
-      :title="isEdit ? '编辑分配' : '分配角色'"
-      width="800px"
-      @ok="handleModalOk"
-      @cancel="handleModalCancel"
-    >
-      <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        layout="vertical"
-      >
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑分配' : '分配角色'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
+      <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="选择用户" name="userId">
-              <a-select
-                v-model:value="formData.userId"
-                placeholder="请选择用户"
-                show-search
-                :filter-option="filterUserOption"
-              >
-                <a-select-option v-for="user in users" :key="user.id" :value="user.id">
-                  {{ user.nickname }} ({{ user.username }})
-                </a-select-option>
+              <a-select v-model:value="formData.userId" placeholder="请选择用户" show-search :filter-option="filterUserOption">
+                <a-select-option v-for="user in users" :key="user.id" :value="user.id"> {{ user.nickname }} ({{ user.username }}) </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="选择实验室" name="laboratoryId">
-              <a-select
-                v-model:value="formData.laboratoryId"
-                placeholder="请选择实验室"
-                show-search
-                :filter-option="filterLabOption"
-              >
+              <a-select v-model:value="formData.laboratoryId" placeholder="请选择实验室" show-search :filter-option="filterLabOption">
                 <a-select-option v-for="lab in laboratories" :key="lab.id" :value="lab.id">
                   {{ lab.name }}
                 </a-select-option>
@@ -166,7 +99,7 @@
             </a-form-item>
           </a-col>
         </a-row>
-        
+
         <a-form-item label="权限设置" name="permissions">
           <a-checkbox-group v-model:value="formData.permissions">
             <a-row>
@@ -180,19 +113,11 @@
         </a-form-item>
 
         <a-form-item label="有效期" name="expiryDate">
-          <a-date-picker
-            v-model:value="formData.expiryDate"
-            placeholder="选择有效期（可选）"
-            style="width: 100%"
-          />
+          <a-date-picker v-model:value="formData.expiryDate" placeholder="选择有效期（可选）" style="width: 100%" />
         </a-form-item>
 
         <a-form-item label="备注" name="remark">
-          <a-textarea
-            v-model:value="formData.remark"
-            placeholder="请输入备注信息"
-            :rows="3"
-          />
+          <a-textarea v-model:value="formData.remark" placeholder="请输入备注信息" :rows="3" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -202,10 +127,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
-import { 
-  PlusOutlined, 
-  SearchOutlined 
-} from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { mockApi } from '@/api/mockData'
 
 const loading = ref(false)
@@ -325,17 +247,15 @@ const filteredAssignments = computed(() => {
   let result = assignments.value
 
   if (searchForm.username) {
-    result = result.filter(assignment => 
-      assignment.user.nickname.toLowerCase().includes(searchForm.username.toLowerCase())
-    )
+    result = result.filter((assignment) => assignment.user.nickname.toLowerCase().includes(searchForm.username.toLowerCase()))
   }
 
   if (searchForm.role) {
-    result = result.filter(assignment => assignment.user.role === searchForm.role)
+    result = result.filter((assignment) => assignment.user.role === searchForm.role)
   }
 
   if (searchForm.laboratory) {
-    result = result.filter(assignment => assignment.laboratory.id === searchForm.laboratory)
+    result = result.filter((assignment) => assignment.laboratory.id === searchForm.laboratory)
   }
 
   return result
@@ -450,7 +370,7 @@ const handleToggleStatus = (record) => {
 
 // 删除分配
 const handleDelete = (record) => {
-  const index = assignments.value.findIndex(assignment => assignment.id === record.id)
+  const index = assignments.value.findIndex((assignment) => assignment.id === record.id)
   if (index > -1) {
     assignments.value.splice(index, 1)
     message.success('分配删除成功')
@@ -461,13 +381,13 @@ const handleDelete = (record) => {
 const handleModalOk = async () => {
   try {
     await formRef.value.validate()
-    
-    const user = users.value.find(u => u.id === formData.userId)
-    const laboratory = laboratories.value.find(l => l.id === formData.laboratoryId)
-    
+
+    const user = users.value.find((u) => u.id === formData.userId)
+    const laboratory = laboratories.value.find((l) => l.id === formData.laboratoryId)
+
     if (isEdit.value) {
       // 编辑分配
-      const index = assignments.value.findIndex(assignment => assignment.id === formData.id)
+      const index = assignments.value.findIndex((assignment) => assignment.id === formData.id)
       if (index > -1) {
         Object.assign(assignments.value[index], {
           user,
@@ -493,7 +413,7 @@ const handleModalOk = async () => {
       assignments.value.unshift(newAssignment)
       message.success('分配成功')
     }
-    
+
     modalVisible.value = false
   } catch (error) {
     console.error('表单验证失败:', error)
@@ -522,10 +442,15 @@ onMounted(() => {
 }
 
 .search-section {
+  display: flex;
+  gap: 10px;
   margin-bottom: 16px;
   padding: 16px;
   background-color: #fafafa;
   border-radius: 6px;
+}
+.search-input {
+  width: 240px;
 }
 
 .user-info {

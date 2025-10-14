@@ -20,65 +20,34 @@
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-row :gutter="16">
-          <a-col :span="6">
-            <a-input
-              v-model:value="searchForm.name"
-              placeholder="搜索设备名称"
-              allow-clear
-              @change="handleSearch"
-            >
-              <template #prefix>
-                <search-outlined />
-              </template>
-            </a-input>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.laboratory"
-              placeholder="选择实验室"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option v-for="lab in laboratories" :key="lab.id" :value="lab.id">
-                {{ lab.name }}
-              </a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.status"
-              placeholder="选择状态"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="working">正常</a-select-option>
-              <a-select-option value="maintenance">维护中</a-select-option>
-              <a-select-option value="broken">故障</a-select-option>
-              <a-select-option value="retired">报废</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-button type="primary" @click="handleSearch">
-              <search-outlined />
-              搜索
-            </a-button>
-            <a-button style="margin-left: 8px" @click="handleReset">
-              重置
-            </a-button>
-          </a-col>
-        </a-row>
+        <a-input v-model:value="searchForm.name" placeholder="搜索设备名称" allow-clear @change="handleSearch" class="search-input">
+          <template #prefix>
+            <search-outlined />
+          </template>
+        </a-input>
+
+        <a-select v-model:value="searchForm.laboratory" placeholder="选择实验室" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option v-for="lab in laboratories" :key="lab.id" :value="lab.id">
+            {{ lab.name }}
+          </a-select-option>
+        </a-select>
+
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="working">正常</a-select-option>
+          <a-select-option value="maintenance">维护中</a-select-option>
+          <a-select-option value="broken">故障</a-select-option>
+          <a-select-option value="retired">报废</a-select-option>
+        </a-select>
+
+        <a-button type="primary" @click="handleSearch">
+          <search-outlined />
+          搜索
+        </a-button>
+        <a-button style="margin-left: 8px" @click="handleReset"> 重置 </a-button>
       </div>
 
       <!-- 设备列表 -->
-      <a-table
-        :columns="columns"
-        :data-source="filteredEquipment"
-        :pagination="pagination"
-        :loading="loading"
-        row-key="id"
-        @change="handleTableChange"
-      >
+      <a-table :columns="columns" :data-source="filteredEquipment" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-tag :color="getStatusColor(record.status)">
@@ -88,34 +57,12 @@
           <template v-else-if="column.key === 'laboratory'">
             <a-tag color="blue">{{ getLaboratoryName(record.laboratoryId) }}</a-tag>
           </template>
-          <template v-else-if="column.key === 'maintenanceStatus'">
-            <a-progress 
-              :percent="getMaintenanceProgress(record)" 
-              :show-info="false"
-              size="small"
-            />
-            <span style="margin-left: 8px; font-size: 12px; color: #666">
-              {{ getMaintenanceDays(record) }}天后维护
-            </span>
-          </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleView(record)">
-                查看
-              </a-button>
-              <a-button type="link" size="small" @click="handleEdit(record)">
-                编辑
-              </a-button>
-              <a-button type="link" size="small" @click="handleMaintenance(record)">
-                维护
-              </a-button>
-              <a-popconfirm
-                title="确定要删除该设备吗？"
-                @confirm="handleDelete(record)"
-              >
-                <a-button type="link" size="small" danger>
-                  删除
-                </a-button>
+              <a-button type="link" size="small" @click="handleView(record)"> 查看 </a-button>
+              <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
+              <a-popconfirm title="确定要删除该设备吗？" @confirm="handleDelete(record)">
+                <a-button type="link" size="small" danger> 删除 </a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -124,19 +71,8 @@
     </a-card>
 
     <!-- 添加/编辑设备模态框 -->
-    <a-modal
-      v-model:open="modalVisible"
-      :title="isEdit ? '编辑设备' : '添加设备'"
-      width="800px"
-      @ok="handleModalOk"
-      @cancel="handleModalCancel"
-    >
-      <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        layout="vertical"
-      >
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑设备' : '添加设备'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
+      <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="设备名称" name="name">
@@ -218,60 +154,7 @@
         </a-row>
 
         <a-form-item label="设备描述" name="description">
-          <a-textarea
-            v-model:value="formData.description"
-            placeholder="请输入设备描述"
-            :rows="3"
-          />
-        </a-form-item>
-      </a-form>
-    </a-modal>
-
-    <!-- 维护记录模态框 -->
-    <a-modal
-      v-model:open="maintenanceModalVisible"
-      title="设备维护"
-      width="600px"
-      @ok="handleMaintenanceOk"
-      @cancel="handleMaintenanceCancel"
-    >
-      <a-form
-        ref="maintenanceFormRef"
-        :model="maintenanceData"
-        :rules="maintenanceRules"
-        layout="vertical"
-      >
-        <a-form-item label="维护类型" name="type">
-          <a-select v-model:value="maintenanceData.type">
-            <a-select-option value="routine">常规维护</a-select-option>
-            <a-select-option value="repair">故障维修</a-select-option>
-            <a-select-option value="upgrade">升级改造</a-select-option>
-            <a-select-option value="cleaning">清洁保养</a-select-option>
-          </a-select>
-        </a-form-item>
-
-        <a-form-item label="维护人员" name="technician">
-          <a-input v-model:value="maintenanceData.technician" />
-        </a-form-item>
-
-        <a-form-item label="维护内容" name="content">
-          <a-textarea
-            v-model:value="maintenanceData.content"
-            placeholder="请描述维护内容"
-            :rows="4"
-          />
-        </a-form-item>
-
-        <a-form-item label="维护结果" name="result">
-          <a-textarea
-            v-model:value="maintenanceData.result"
-            placeholder="请描述维护结果"
-            :rows="3"
-          />
-        </a-form-item>
-
-        <a-form-item label="下次维护日期" name="nextMaintenanceDate">
-          <a-date-picker v-model:value="maintenanceData.nextMaintenanceDate" style="width: 100%" />
+          <a-textarea v-model:value="formData.description" placeholder="请输入设备描述" :rows="3" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -282,21 +165,13 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
-import { 
-  PlusOutlined, 
-  SearchOutlined,
-  UploadOutlined,
-  DownloadOutlined
-} from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { mockApi } from '@/api/mockData'
 
 const loading = ref(false)
 const modalVisible = ref(false)
-const maintenanceModalVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
-const maintenanceFormRef = ref()
-const currentEquipment = ref(null)
 
 // 搜索表单
 const searchForm = reactive({
@@ -377,15 +252,6 @@ const formData = reactive({
   description: ''
 })
 
-// 维护数据
-const maintenanceData = reactive({
-  type: '',
-  technician: '',
-  content: '',
-  result: '',
-  nextMaintenanceDate: null
-})
-
 // 表单验证规则
 const formRules = {
   name: [{ required: true, message: '请输入设备名称' }],
@@ -394,13 +260,6 @@ const formRules = {
   laboratoryId: [{ required: true, message: '请选择所属实验室' }],
   brand: [{ required: true, message: '请输入品牌' }],
   status: [{ required: true, message: '请选择状态' }]
-}
-
-// 维护表单验证规则
-const maintenanceRules = {
-  type: [{ required: true, message: '请选择维护类型' }],
-  technician: [{ required: true, message: '请输入维护人员' }],
-  content: [{ required: true, message: '请输入维护内容' }]
 }
 
 // 获取状态颜色
@@ -427,21 +286,8 @@ const getStatusText = (status) => {
 
 // 获取实验室名称
 const getLaboratoryName = (laboratoryId) => {
-  const lab = laboratories.value.find(l => l.id === laboratoryId)
+  const lab = laboratories.value.find((l) => l.id === laboratoryId)
   return lab ? lab.name : '未知'
-}
-
-// 获取维护进度
-const getMaintenanceProgress = (record) => {
-  const daysSinceLastMaintenance = dayjs().diff(dayjs(record.lastMaintenance), 'day')
-  const progress = Math.min((daysSinceLastMaintenance / record.maintenanceCycle) * 100, 100)
-  return Math.round(progress)
-}
-
-// 获取维护天数
-const getMaintenanceDays = (record) => {
-  const daysSinceLastMaintenance = dayjs().diff(dayjs(record.lastMaintenance), 'day')
-  return Math.max(record.maintenanceCycle - daysSinceLastMaintenance, 0)
 }
 
 // 筛选后的设备数据
@@ -449,17 +295,15 @@ const filteredEquipment = computed(() => {
   let result = equipment.value
 
   if (searchForm.name) {
-    result = result.filter(item => 
-      item.name.toLowerCase().includes(searchForm.name.toLowerCase())
-    )
+    result = result.filter((item) => item.name.toLowerCase().includes(searchForm.name.toLowerCase()))
   }
 
   if (searchForm.laboratory) {
-    result = result.filter(item => item.laboratoryId === searchForm.laboratory)
+    result = result.filter((item) => item.laboratoryId === searchForm.laboratory)
   }
 
   if (searchForm.status) {
-    result = result.filter(item => item.status === searchForm.status)
+    result = result.filter((item) => item.status === searchForm.status)
   }
 
   return result
@@ -475,7 +319,7 @@ const loadData = async () => {
 
     // 加载设备数据
     const equipmentRes = await mockApi.getEquipment()
-    equipment.value = equipmentRes.data.map(item => ({
+    equipment.value = equipmentRes.data.map((item) => ({
       ...item,
       code: `EQ${String(item.id).padStart(4, '0')}`,
       brand: '品牌A',
@@ -550,22 +394,9 @@ const handleEdit = (record) => {
   })
 }
 
-// 维护设备
-const handleMaintenance = (record) => {
-  currentEquipment.value = record
-  maintenanceModalVisible.value = true
-  Object.assign(maintenanceData, {
-    type: '',
-    technician: '',
-    content: '',
-    result: '',
-    nextMaintenanceDate: dayjs(record.nextMaintenance)
-  })
-}
-
 // 删除设备
 const handleDelete = (record) => {
-  const index = equipment.value.findIndex(item => item.id === record.id)
+  const index = equipment.value.findIndex((item) => item.id === record.id)
   if (index > -1) {
     equipment.value.splice(index, 1)
     message.success('设备删除成功')
@@ -586,10 +417,10 @@ const handleExport = () => {
 const handleModalOk = async () => {
   try {
     await formRef.value.validate()
-    
+
     if (isEdit.value) {
       // 编辑设备
-      const index = equipment.value.findIndex(item => item.id === formData.id)
+      const index = equipment.value.findIndex((item) => item.id === formData.id)
       if (index > -1) {
         Object.assign(equipment.value[index], {
           ...formData,
@@ -609,7 +440,7 @@ const handleModalOk = async () => {
       equipment.value.unshift(newEquipment)
       message.success('设备添加成功')
     }
-    
+
     modalVisible.value = false
   } catch (error) {
     console.error('表单验证失败:', error)
@@ -620,36 +451,6 @@ const handleModalOk = async () => {
 const handleModalCancel = () => {
   modalVisible.value = false
   formRef.value?.resetFields()
-}
-
-// 维护确认
-const handleMaintenanceOk = async () => {
-  try {
-    await maintenanceFormRef.value.validate()
-    
-    // 更新设备维护信息
-    if (currentEquipment.value) {
-      const index = equipment.value.findIndex(item => item.id === currentEquipment.value.id)
-      if (index > -1) {
-        equipment.value[index].lastMaintenance = dayjs().format('YYYY-MM-DD')
-        equipment.value[index].nextMaintenance = maintenanceData.nextMaintenanceDate ? 
-          maintenanceData.nextMaintenanceDate.format('YYYY-MM-DD') : 
-          dayjs().add(90, 'day').format('YYYY-MM-DD')
-        equipment.value[index].status = 'working'
-      }
-    }
-    
-    message.success('维护记录已保存')
-    maintenanceModalVisible.value = false
-  } catch (error) {
-    console.error('表单验证失败:', error)
-  }
-}
-
-// 维护取消
-const handleMaintenanceCancel = () => {
-  maintenanceModalVisible.value = false
-  maintenanceFormRef.value?.resetFields()
 }
 
 onMounted(() => {
@@ -668,10 +469,15 @@ onMounted(() => {
 }
 
 .search-section {
+  display: flex;
+  gap: 10px;
   margin-bottom: 16px;
   padding: 16px;
   background-color: #fafafa;
   border-radius: 6px;
+}
+.search-input {
+  width: 240px;
 }
 
 :deep(.ant-table-thead > tr > th) {

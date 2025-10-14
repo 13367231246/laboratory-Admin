@@ -10,63 +10,32 @@
 
       <!-- 搜索和筛选 -->
       <div class="search-section">
-        <a-row :gutter="16">
-          <a-col :span="6">
-            <a-input
-              v-model:value="searchForm.username"
-              placeholder="搜索用户名"
-              allow-clear
-              @change="handleSearch"
-            >
-              <template #prefix>
-                <search-outlined />
-              </template>
-            </a-input>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.role"
-              placeholder="选择角色"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="admin">管理员</a-select-option>
-              <a-select-option value="teacher">教师</a-select-option>
-              <a-select-option value="student">学生</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-select
-              v-model:value="searchForm.status"
-              placeholder="选择状态"
-              allow-clear
-              @change="handleSearch"
-            >
-              <a-select-option value="active">活跃</a-select-option>
-              <a-select-option value="inactive">禁用</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="6">
-            <a-button type="primary" @click="handleSearch">
-              <search-outlined />
-              搜索
-            </a-button>
-            <a-button style="margin-left: 8px" @click="handleReset">
-              重置
-            </a-button>
-          </a-col>
-        </a-row>
+        <a-input v-model:value="searchForm.username" placeholder="搜索用户名" allow-clear @change="handleSearch" class="search-input">
+          <template #prefix>
+            <search-outlined />
+          </template>
+        </a-input>
+
+        <a-select v-model:value="searchForm.role" placeholder="选择角色" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="admin">管理员</a-select-option>
+          <a-select-option value="teacher">教师</a-select-option>
+          <a-select-option value="student">学生</a-select-option>
+        </a-select>
+
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
+          <a-select-option value="active">活跃</a-select-option>
+          <a-select-option value="inactive">禁用</a-select-option>
+        </a-select>
+
+        <a-button type="primary" @click="handleSearch">
+          <search-outlined />
+          搜索
+        </a-button>
+        <a-button style="margin-left: 8px" @click="handleReset"> 重置 </a-button>
       </div>
 
       <!-- 用户列表 -->
-      <a-table
-        :columns="columns"
-        :data-source="filteredUsers"
-        :pagination="pagination"
-        :loading="loading"
-        row-key="id"
-        @change="handleTableChange"
-      >
+      <a-table :columns="columns" :data-source="filteredUsers" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'avatar'">
             <a-avatar :src="record.avatar" :size="32">
@@ -85,27 +54,15 @@
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleEdit(record)">
-                编辑
-              </a-button>
-              <a-button type="link" size="small" @click="handleResetPassword(record)">
-                重置密码
-              </a-button>
-              <a-popconfirm
-                :title="`确定要${record.status === 'active' ? '禁用' : '启用'}该用户吗？`"
-                @confirm="handleToggleStatus(record)"
-              >
+              <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
+              <a-button type="link" size="small" @click="handleResetPassword(record)"> 重置密码 </a-button>
+              <a-popconfirm :title="`确定要${record.status === 'active' ? '禁用' : '启用'}该用户吗？`" @confirm="handleToggleStatus(record)">
                 <a-button type="link" size="small" :danger="record.status === 'active'">
                   {{ record.status === 'active' ? '禁用' : '启用' }}
                 </a-button>
               </a-popconfirm>
-              <a-popconfirm
-                title="确定要删除该用户吗？"
-                @confirm="handleDelete(record)"
-              >
-                <a-button type="link" size="small" danger>
-                  删除
-                </a-button>
+              <a-popconfirm title="确定要删除该用户吗？" @confirm="handleDelete(record)">
+                <a-button type="link" size="small" danger> 删除 </a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -114,18 +71,8 @@
     </a-card>
 
     <!-- 添加/编辑用户模态框 -->
-    <a-modal
-      v-model:open="modalVisible"
-      :title="isEdit ? '编辑用户' : '添加用户'"
-      @ok="handleModalOk"
-      @cancel="handleModalCancel"
-    >
-      <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        layout="vertical"
-      >
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑用户' : '添加用户'" @ok="handleModalOk" @cancel="handleModalCancel">
+      <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-form-item label="用户名" name="username">
           <a-input v-model:value="formData.username" :disabled="isEdit" />
         </a-form-item>
@@ -159,10 +106,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
-import { 
-  PlusOutlined, 
-  SearchOutlined 
-} from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { mockApi } from '@/api/mockData'
 
 const loading = ref(false)
@@ -283,17 +227,15 @@ const filteredUsers = computed(() => {
   let result = users.value
 
   if (searchForm.username) {
-    result = result.filter(user => 
-      user.username.toLowerCase().includes(searchForm.username.toLowerCase())
-    )
+    result = result.filter((user) => user.username.toLowerCase().includes(searchForm.username.toLowerCase()))
   }
 
   if (searchForm.role) {
-    result = result.filter(user => user.role === searchForm.role)
+    result = result.filter((user) => user.role === searchForm.role)
   }
 
   if (searchForm.status) {
-    result = result.filter(user => user.status === searchForm.status)
+    result = result.filter((user) => user.status === searchForm.status)
   }
 
   return result
@@ -304,7 +246,7 @@ const loadUsers = async () => {
   loading.value = true
   try {
     const response = await mockApi.getUsers()
-    users.value = response.data.map(user => ({
+    users.value = response.data.map((user) => ({
       ...user,
       email: `${user.username}@example.com`,
       phone: '138****8888',
@@ -377,7 +319,7 @@ const handleToggleStatus = (record) => {
 
 // 删除用户
 const handleDelete = (record) => {
-  const index = users.value.findIndex(user => user.id === record.id)
+  const index = users.value.findIndex((user) => user.id === record.id)
   if (index > -1) {
     users.value.splice(index, 1)
     message.success('用户删除成功')
@@ -388,10 +330,10 @@ const handleDelete = (record) => {
 const handleModalOk = async () => {
   try {
     await formRef.value.validate()
-    
+
     if (isEdit.value) {
       // 编辑用户
-      const index = users.value.findIndex(user => user.id === formData.id)
+      const index = users.value.findIndex((user) => user.id === formData.id)
       if (index > -1) {
         Object.assign(users.value[index], formData)
         message.success('用户更新成功')
@@ -408,7 +350,7 @@ const handleModalOk = async () => {
       users.value.unshift(newUser)
       message.success('用户添加成功')
     }
-    
+
     modalVisible.value = false
   } catch (error) {
     console.error('表单验证失败:', error)
@@ -437,12 +379,16 @@ onMounted(() => {
 }
 
 .search-section {
+  display: flex;
+  gap: 10px;
   margin-bottom: 16px;
   padding: 16px;
   background-color: #fafafa;
   border-radius: 6px;
 }
-
+.search-input {
+  width: 240px;
+}
 :deep(.ant-table-thead > tr > th) {
   background-color: #fafafa;
   font-weight: 600;
