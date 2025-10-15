@@ -41,7 +41,7 @@ export const routes = [
       {
         path: '/user-management/accounts',
         name: 'AccountManagement',
-        component: () => import('@/views/user-management/accounts.vue'),
+        component: () => import('@/views/user-management/accounts/index.vue'),
         meta: {
           title: '账号管理',
           icon: 'team-outlined'
@@ -50,7 +50,7 @@ export const routes = [
       {
         path: '/user-management/roles',
         name: 'RoleManagement',
-        component: () => import('@/views/user-management/roles.vue'),
+        component: () => import('@/views/user-management/roles/index.vue'),
         meta: {
           title: '角色分配',
           icon: 'safety-certificate-outlined'
@@ -70,7 +70,7 @@ export const routes = [
       {
         path: '/laboratory-management/laboratories',
         name: 'LaboratoryList',
-        component: () => import('@/views/laboratory-management/laboratories.vue'),
+        component: () => import('@/views/laboratory-management/laboratories/index.vue'),
         meta: {
           title: '实验室列表',
           icon: 'bank-outlined'
@@ -79,7 +79,7 @@ export const routes = [
       {
         path: '/laboratory-management/equipment',
         name: 'EquipmentManagement',
-        component: () => import('@/views/laboratory-management/equipment.vue'),
+        component: () => import('@/views/laboratory-management/equipment/index.vue'),
         meta: {
           title: '设备管理',
           icon: 'tool-outlined'
@@ -88,7 +88,7 @@ export const routes = [
       {
         path: '/laboratory-management/maintenance',
         name: 'MaintenanceManagement',
-        component: () => import('@/views/laboratory-management/maintenance.vue'),
+        component: () => import('@/views/laboratory-management/maintenance/index.vue'),
         meta: {
           title: '维护管理',
           icon: 'setting-outlined'
@@ -97,7 +97,7 @@ export const routes = [
       {
         path: '/laboratory-management/import',
         name: 'ImportData',
-        component: () => import('@/views/laboratory-management/import.vue'),
+        component: () => import('@/views/laboratory-management/import/index.vue'),
         meta: {
           title: '数据导入',
           icon: 'upload-outlined'
@@ -117,7 +117,7 @@ export const routes = [
       {
         path: '/process-management/protocols',
         name: 'ProtocolManagement',
-        component: () => import('@/views/process-management/protocols.vue'),
+        component: () => import('@/views/process-management/protocols/index.vue'),
         meta: {
           title: '协议管理',
           icon: 'file-protect-outlined'
@@ -126,7 +126,7 @@ export const routes = [
       {
         path: '/process-management/feedback',
         name: 'FeedbackManagement',
-        component: () => import('@/views/process-management/feedback.vue'),
+        component: () => import('@/views/process-management/feedback/index.vue'),
         meta: {
           title: '反馈处理',
           icon: 'message-outlined'
@@ -135,10 +135,31 @@ export const routes = [
       {
         path: '/process-management/schedule',
         name: 'ScheduleManagement',
-        component: () => import('@/views/process-management/schedule.vue'),
+        component: () => import('@/views/process-management/schedule/index.vue'),
         meta: {
           title: '时间调整',
           icon: 'clock-circle-outlined'
+        }
+      }
+    ]
+  },
+  {
+    path: '/user',
+    name: 'User',
+    component: () => import('@/layouts/index.vue'),
+    meta: {
+      title: '个人中心',
+      icon: 'user-outlined',
+      hidden: true
+    },
+    children: [
+      {
+        path: '/user/profile',
+        name: 'UserProfile',
+        component: () => import('@/views/profile/index.vue'),
+        meta: {
+          title: '个人信息',
+          icon: 'user-outlined'
         }
       }
     ]

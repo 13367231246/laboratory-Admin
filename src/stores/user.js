@@ -7,7 +7,11 @@ export const useUserStore = defineStore('user', {
       id: 1,
       avatar: '',
       nickname: '管理员',
-      username: 'admin'
+      username: 'admin',
+      phone: '13800138000',
+      email: 'admin@example.com',
+      gender: 1, // 1: 男, 2: 女, 0: 保密
+      createTime: new Date('2024-01-01')
     },
     isLoggedIn: false
   }),
@@ -67,8 +71,20 @@ export const useUserStore = defineStore('user', {
         id: 0,
         avatar: '',
         nickname: '',
-        username: ''
+        username: '',
+        phone: '',
+        email: '',
+        gender: 0,
+        createTime: null
       }
+    },
+    // 更新用户信息
+    updateUserInfo(userData) {
+      this.user = { ...this.user, ...userData }
+    },
+    // 更新头像
+    updateAvatar(avatar) {
+      this.user.avatar = avatar
     }
   }
 })

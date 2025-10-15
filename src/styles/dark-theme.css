@@ -1,0 +1,785 @@
+/* 深色主题全局样式 */
+
+/* 根元素深色模式 */
+.dark-mode {
+  color-scheme: dark;
+}
+
+/* 全局背景色 */
+.dark-mode body {
+  background-color: #141414 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 卡片组件深色模式 */
+.dark-mode .ant-card {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-card-head {
+  background-color: #1f1f1f !important;
+  border-bottom-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-card-body {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 表格组件深色模式 */
+.dark-mode .ant-table {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-table-thead > tr > th {
+  background-color: #262626 !important;
+  border-bottom-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-table-tbody > tr > td {
+  background-color: #1f1f1f !important;
+  border-bottom-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-table-tbody > tr:hover > td {
+  background-color: #262626 !important;
+}
+
+.ant-menu-submenu-title:hover {
+  color: #1677ff !important;
+}
+
+.ant-menu-submenu-title:active {
+  background-color: transparent !important;
+}
+
+/* 表单组件深色模式 */
+.dark-mode .ant-form-item-label > label {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-input {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-input:hover {
+  border-color: #40a9ff !important;
+}
+
+.dark-mode .ant-input:focus {
+  border-color: #40a9ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+.dark-mode .ant-select-selector {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-select-selection-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-select-arrow {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.dark-mode .ant-picker {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-picker-input > input {
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 按钮组件深色模式 */
+.dark-mode .ant-btn-default {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-btn-default:hover {
+  background-color: #262626 !important;
+  border-color: #40a9ff !important;
+  color: #40a9ff !important;
+}
+
+/* 分页组件深色模式 */
+.dark-mode .ant-pagination {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-pagination-item {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+}
+
+.dark-mode .ant-pagination-item a {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-pagination-item:hover {
+  border-color: #40a9ff !important;
+}
+
+.dark-mode .ant-pagination-item:hover a {
+  color: #40a9ff !important;
+}
+
+.dark-mode .ant-pagination-item-active {
+  background-color: #1890ff !important;
+  border-color: #1890ff !important;
+}
+
+.dark-mode .ant-pagination-item-active a {
+  color: #fff !important;
+}
+
+/* 标签组件深色模式 */
+.dark-mode .ant-tag {
+  background-color: #262626 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 描述列表深色模式 */
+.dark-mode .ant-descriptions {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-descriptions-item-label {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.dark-mode .ant-descriptions-item-content {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 模态框深色模式 */
+.dark-mode .ant-modal-content {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-modal-header {
+  background-color: #1f1f1f !important;
+  border-bottom-color: #303030 !important;
+}
+
+.dark-mode .ant-modal-title {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-modal-body {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-modal-footer {
+  background-color: #1f1f1f !important;
+  border-top-color: #303030 !important;
+}
+
+/* 抽屉组件深色模式 */
+.dark-mode .ant-drawer-content {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-drawer-header {
+  background-color: #1f1f1f !important;
+  border-bottom-color: #303030 !important;
+}
+
+.dark-mode .ant-drawer-title {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-drawer-body {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 下拉菜单深色模式 */
+.dark-mode .ant-dropdown-menu {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+}
+
+.dark-mode .ant-dropdown-menu-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-dropdown-menu-item:hover {
+  background-color: #262626 !important;
+  color: #40a9ff !important;
+}
+
+/* 选择器下拉菜单深色模式 */
+.dark-mode .ant-select-dropdown {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+}
+
+.dark-mode .ant-select-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-select-item:hover {
+  background-color: #262626 !important;
+}
+
+.dark-mode .ant-select-item-option-selected {
+  background-color: #111b26 !important;
+  color: #40a9ff !important;
+}
+
+/* 日期选择器下拉菜单深色模式 */
+.dark-mode .ant-picker-dropdown {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+}
+
+.dark-mode .ant-picker-panel {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+}
+
+.dark-mode .ant-picker-cell {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-picker-cell:hover {
+  background-color: #262626 !important;
+}
+
+.dark-mode .ant-picker-cell-selected {
+  background-color: #1890ff !important;
+  color: #fff !important;
+}
+
+/* 开关组件深色模式 */
+.dark-mode .ant-switch {
+  background-color: #303030 !important;
+}
+
+.dark-mode .ant-switch-checked {
+  background-color: #1890ff !important;
+}
+
+/* 加载组件深色模式 */
+.dark-mode .ant-spin-container {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 空状态组件深色模式 */
+.dark-mode .ant-empty {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.dark-mode .ant-empty-description {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 消息提示深色模式 */
+.dark-mode .ant-message {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-message-notice-content {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 通知组件深色模式 */
+.dark-mode .ant-notification {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-notification-notice-message {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-notification-notice-description {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* 工具提示深色模式 */
+.dark-mode .ant-tooltip-inner {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-tooltip-arrow::before {
+  background-color: #1f1f1f !important;
+}
+
+/* 进度条深色模式 */
+.dark-mode .ant-progress-bg {
+  background-color: #303030 !important;
+}
+
+/* 步骤条深色模式 */
+.dark-mode .ant-steps-item-title {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .ant-steps-item-description {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* 时间轴深色模式 */
+.dark-mode .ant-timeline-item-content {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 锚点深色模式 */
+.dark-mode .ant-anchor-link-title {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 回到顶部深色模式 */
+.dark-mode .ant-back-top {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 页面标题组件深色模式 */
+.dark-mode .page-title {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .page-description {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* 内容包装组件深色模式 */
+.dark-mode .content-wrap {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 搜索表单深色模式 */
+.dark-mode .search-form {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .search-form .ant-form-item-label > label {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .search-form .ant-input {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .search-form .ant-input:hover {
+  border-color: #40a9ff !important;
+}
+
+.dark-mode .search-form .ant-input:focus {
+  border-color: #40a9ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+.dark-mode .search-form .ant-select-selector {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .search-form .ant-select-selection-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .search-form .ant-select-arrow {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.dark-mode .search-form .ant-picker {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .search-form .ant-picker-input > input {
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .search-form .ant-picker-input > input::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 标签页深色模式 */
+.dark-mode .tabs-view {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .tabs-view-dark {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 菜单列表深色模式 */
+.dark-mode .menu-list {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 主题设置深色模式 */
+.dark-mode .theme-settings {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .setting-block {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .setting-title {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .setting-subtitle {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* 自定义组件深色模式 */
+.dark-mode .card-title {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .descriptions-item-label {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* 统计卡片深色模式 */
+.dark-mode .statistic-card {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .statistic-icon {
+  background-color: #262626 !important;
+}
+
+.dark-mode .statistic-icon.today-new {
+  background-color: #262626 !important;
+}
+
+.dark-mode .statistic-icon.pending-audit {
+  background-color: #262626 !important;
+}
+
+.dark-mode .statistic-title {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.dark-mode .statistic-value {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 会员权益管理深色模式 */
+.dark-mode .member-benefits {
+  background-color: #141414 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .equities-management {
+  background-color: #141414 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 论坛帖子管理深色模式 */
+.dark-mode .forum-posts {
+  background-color: #141414 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 评论管理深色模式 */
+.dark-mode .comment-management {
+  background-color: #141414 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 页面标题深色模式 */
+.dark-mode .page-title {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .page-description {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* 帮助图标深色模式 */
+.dark-mode .help-icon {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 项目对齐深色模式 */
+.dark-mode .items-center {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 权益卡片深色模式 */
+.dark-mode .rights-card {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-card .ant-card-head {
+  background-color: #1f1f1f !important;
+  border-bottom-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-card .ant-card-body {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 权益状态标签深色模式 */
+.dark-mode .rights-status {
+  background-color: #262626 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-status.active {
+  background-color: #52c41a !important;
+  color: #fff !important;
+}
+
+.dark-mode .rights-status.inactive {
+  background-color: #ff4d4f !important;
+  color: #fff !important;
+}
+
+/* 权益价格深色模式 */
+.dark-mode .rights-price {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-price .price-value {
+  color: #1890ff !important;
+}
+
+.dark-mode .rights-price .price-unit {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* 权益描述深色模式 */
+.dark-mode .rights-description {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* 权益操作按钮深色模式 */
+.dark-mode .rights-actions {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 权益列表深色模式 */
+.dark-mode .rights-list {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-list-item {
+  background-color: #1f1f1f !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-list-item:hover {
+  background-color: #262626 !important;
+}
+
+/* 权益搜索表单深色模式 */
+.dark-mode .rights-search-form {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 权益统计深色模式 */
+.dark-mode .rights-stats {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-stats-item {
+  background-color: #262626 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 权益详情深色模式 */
+.dark-mode .rights-detail {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-detail-header {
+  background-color: #1f1f1f !important;
+  border-bottom-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-detail-content {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 权益表单深色模式 */
+.dark-mode .rights-form {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-form .ant-form-item-label > label {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-form .ant-input {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-form .ant-select-selector {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-form .ant-textarea {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 权益授予表单深色模式 */
+.dark-mode .grant-form {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .grant-form .ant-form-item-label > label {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .grant-form .ant-input {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .grant-form .ant-select-selector {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .grant-form .ant-picker {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 权益过期处理深色模式 */
+.dark-mode .expired-rights {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .expired-rights-item {
+  background-color: #262626 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .expired-rights-item:hover {
+  background-color: #303030 !important;
+}
+
+/* 权益操作按钮组深色模式 */
+.dark-mode .rights-action-buttons {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-action-buttons .ant-btn {
+  background-color: #141414 !important;
+  border-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark-mode .rights-action-buttons .ant-btn:hover {
+  background-color: #262626 !important;
+  border-color: #40a9ff !important;
+  color: #40a9ff !important;
+}
+
+.dark-mode .rights-action-buttons .ant-btn-primary {
+  background-color: #1890ff !important;
+  border-color: #1890ff !important;
+  color: #fff !important;
+}
+
+.dark-mode .rights-action-buttons .ant-btn-primary:hover {
+  background-color: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+/* 滚动条深色模式 */
+.dark-mode ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+  background: #1f1f1f;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 4px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
+
+/* 选择文本深色模式 */
+.dark-mode ::selection {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.dark-mode ::-moz-selection {
+  background-color: #1890ff;
+  color: #fff;
+}
