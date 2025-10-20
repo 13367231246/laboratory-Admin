@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     server: {
-      port: 3000,
+      port: 85,
       // 开发服务器代理配置
       proxy: {
         // 将所有 /api 开头的请求代理到 VITE_API_BASE_URL
