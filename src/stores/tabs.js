@@ -62,13 +62,21 @@ export const useTabsStore = defineStore(
       activeKey.value = key
     }
 
+    // 清空所有标签页
+    const clearTabs = () => {
+      tabs.value = []
+      activeKey.value = ''
+      cachedViews.value = []
+    }
+
     return {
       tabs,
       activeKey,
       cachedViews,
       addTab,
       removeTab,
-      setActiveKey
+      setActiveKey,
+      clearTabs
     }
   },
   {

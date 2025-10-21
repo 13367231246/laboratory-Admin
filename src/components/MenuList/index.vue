@@ -23,14 +23,6 @@
             <component :is="getAntdIcon(child.meta?.icon)" v-if="child.meta?.icon" />
           </template>
           <template #title>{{ child.meta?.title }}</template>
-
-          <!-- 三级菜单项 -->
-          <a-menu-item v-for="grandChild in child.children" :key="grandChild.path">
-            <template #icon>
-              <component :is="getAntdIcon(grandChild.meta?.icon)" v-if="grandChild.meta?.icon" />
-            </template>
-            <span>{{ grandChild.meta?.title }}</span>
-          </a-menu-item>
         </a-sub-menu>
 
         <!-- 子菜单项 -->
@@ -54,7 +46,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import * as AntdIcons from '@ant-design/icons-vue'
 
 const props = defineProps({

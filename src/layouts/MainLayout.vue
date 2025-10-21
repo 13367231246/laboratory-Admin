@@ -155,6 +155,8 @@ async function handleLogout() {
     title: '确定退出登录吗？',
     onOk: async () => {
       await userStore.loginOut()
+      // 清空标签页状态
+      tabsStore.clearTabs()
       router.push('/login')
     }
   })
