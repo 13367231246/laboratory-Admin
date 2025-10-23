@@ -7,13 +7,18 @@
             <plus-outlined />
             添加设备
           </a-button>
+          <a-button @click="downloadTemplate">
+            <download-outlined />
+            下载模板
+          </a-button>
           <a-button @click="handleBatchImport">
             <upload-outlined />
             批量导入
           </a-button>
-          <a-button @click="handleExport">
-            <download-outlined />
-            导出数据
+
+          <a-button @click="showCategoryModal">
+            <plus-outlined />
+            新增分类
           </a-button>
         </a-space>
       </template>
@@ -26,19 +31,6 @@
           </template>
         </a-input>
 
-        <a-select v-model:value="searchForm.laboratory" placeholder="选择实验室" allow-clear @change="handleSearch" class="search-input">
-          <a-select-option v-for="lab in laboratories" :key="lab.id" :value="lab.id">
-            {{ lab.name }}
-          </a-select-option>
-        </a-select>
-
-        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
-          <a-select-option value="working">正常</a-select-option>
-          <a-select-option value="maintenance">维护中</a-select-option>
-          <a-select-option value="broken">故障</a-select-option>
-          <a-select-option value="retired">报废</a-select-option>
-        </a-select>
-
         <a-button type="primary" @click="handleSearch">
           <search-outlined />
           搜索
@@ -49,17 +41,11 @@
       <!-- 设备列表 -->
       <a-table :columns="columns" :data-source="filteredEquipment" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <a-tag :color="getStatusColor(record.status)">
-              {{ getStatusText(record.status) }}
-            </a-tag>
-          </template>
-          <template v-else-if="column.key === 'laboratory'">
+          <template v-if="column.key === 'laboratory'">
             <a-tag color="blue">{{ getLaboratoryName(record.laboratoryId) }}</a-tag>
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleView(record)"> 查看 </a-button>
               <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
               <a-popconfirm title="确定要删除该设备吗？" @confirm="handleDelete(record)">
                 <a-button type="link" size="small" danger> 删除 </a-button>
@@ -98,15 +84,6 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :span="12">
-            <a-form-item label="所属实验室" name="laboratoryId">
-              <a-select v-model:value="formData.laboratoryId">
-                <a-select-option v-for="lab in laboratories" :key="lab.id" :value="lab.id">
-                  {{ lab.name }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
         </a-row>
 
         <a-row :gutter="16">
@@ -124,6 +101,14 @@
 
         <a-row :gutter="16">
           <a-col :span="12">
+            <a-form-item label="设备数量" name="quantity">
+              <a-input-number v-model:value="formData.quantity" :min="1" :max="9999" style="width: 100%" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="16">
+          <a-col :span="12">
             <a-form-item label="购买日期" name="purchaseDate">
               <a-date-picker v-model:value="formData.purchaseDate" style="width: 100%" />
             </a-form-item>
@@ -135,26 +120,17 @@
           </a-col>
         </a-row>
 
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="状态" name="status">
-              <a-select v-model:value="formData.status">
-                <a-select-option value="working">正常</a-select-option>
-                <a-select-option value="maintenance">维护中</a-select-option>
-                <a-select-option value="broken">故障</a-select-option>
-                <a-select-option value="retired">报废</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="维护周期（天）" name="maintenanceCycle">
-              <a-input-number v-model:value="formData.maintenanceCycle" :min="1" :max="365" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
         <a-form-item label="设备描述" name="description">
           <a-textarea v-model:value="formData.description" placeholder="请输入设备描述" :rows="3" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <!-- 新增分类模态框 -->
+    <a-modal v-model:open="categoryModalVisible" title="新增分类" @ok="handleCategoryOk" @cancel="handleCategoryCancel">
+      <a-form ref="categoryFormRef" :model="categoryFormData" :rules="categoryFormRules" layout="vertical">
+        <a-form-item label="分类名称" name="name">
+          <a-input v-model:value="categoryFormData.name" placeholder="请输入分类名称" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -170,15 +146,25 @@ import { mockApi } from '@/api/mockData'
 
 const loading = ref(false)
 const modalVisible = ref(false)
+const categoryModalVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
+const categoryFormRef = ref()
 
 // 搜索表单
 const searchForm = reactive({
-  name: '',
-  laboratory: '',
-  status: ''
+  name: ''
 })
+
+// 分类表单数据
+const categoryFormData = reactive({
+  name: ''
+})
+
+// 分类表单验证规则
+const categoryFormRules = {
+  name: [{ required: true, message: '请输入分类名称' }]
+}
 
 // 数据
 const laboratories = ref([])
@@ -216,19 +202,10 @@ const columns = [
     width: 100
   },
   {
-    title: '所属实验室',
-    key: 'laboratory',
-    width: 150
-  },
-  {
-    title: '状态',
-    key: 'status',
+    title: '数量',
+    dataIndex: 'quantity',
+    key: 'quantity',
     width: 100
-  },
-  {
-    title: '维护状态',
-    key: 'maintenanceStatus',
-    width: 200
   },
   {
     title: '操作',
@@ -242,13 +219,11 @@ const formData = reactive({
   name: '',
   code: '',
   type: '',
-  laboratoryId: '',
   brand: '',
   model: '',
+  quantity: 1,
   purchaseDate: null,
   warrantyMonths: 12,
-  status: 'working',
-  maintenanceCycle: 90,
   description: ''
 })
 
@@ -257,37 +232,8 @@ const formRules = {
   name: [{ required: true, message: '请输入设备名称' }],
   code: [{ required: true, message: '请输入设备编号' }],
   type: [{ required: true, message: '请选择设备类型' }],
-  laboratoryId: [{ required: true, message: '请选择所属实验室' }],
   brand: [{ required: true, message: '请输入品牌' }],
-  status: [{ required: true, message: '请选择状态' }]
-}
-
-// 获取状态颜色
-const getStatusColor = (status) => {
-  const colors = {
-    working: 'green',
-    maintenance: 'orange',
-    broken: 'red',
-    retired: 'gray'
-  }
-  return colors[status] || 'default'
-}
-
-// 获取状态文本
-const getStatusText = (status) => {
-  const texts = {
-    working: '正常',
-    maintenance: '维护中',
-    broken: '故障',
-    retired: '报废'
-  }
-  return texts[status] || status
-}
-
-// 获取实验室名称
-const getLaboratoryName = (laboratoryId) => {
-  const lab = laboratories.value.find((l) => l.id === laboratoryId)
-  return lab ? lab.name : '未知'
+  quantity: [{ required: true, message: '请输入设备数量' }]
 }
 
 // 筛选后的设备数据
@@ -296,14 +242,6 @@ const filteredEquipment = computed(() => {
 
   if (searchForm.name) {
     result = result.filter((item) => item.name.toLowerCase().includes(searchForm.name.toLowerCase()))
-  }
-
-  if (searchForm.laboratory) {
-    result = result.filter((item) => item.laboratoryId === searchForm.laboratory)
-  }
-
-  if (searchForm.status) {
-    result = result.filter((item) => item.status === searchForm.status)
   }
 
   return result
@@ -347,9 +285,7 @@ const handleSearch = () => {
 // 重置搜索
 const handleReset = () => {
   Object.assign(searchForm, {
-    name: '',
-    laboratory: '',
-    status: ''
+    name: ''
   })
   handleSearch()
 }
@@ -368,20 +304,13 @@ const showAddModal = () => {
     name: '',
     code: '',
     type: '',
-    laboratoryId: '',
     brand: '',
     model: '',
+    quantity: 1,
     purchaseDate: null,
     warrantyMonths: 12,
-    status: 'working',
-    maintenanceCycle: 90,
     description: ''
   })
-}
-
-// 查看设备
-const handleView = (record) => {
-  message.info(`查看设备：${record.name}`)
 }
 
 // 编辑设备
@@ -408,9 +337,35 @@ const handleBatchImport = () => {
   message.info('批量导入功能')
 }
 
-// 导出数据
-const handleExport = () => {
-  message.info('导出数据功能')
+// 下载模板
+const downloadTemplate = () => {
+  message.success('正在下载设备导入模板.xlsx')
+  // 这里应该实现真实的下载逻辑
+}
+
+// 显示分类模态框
+const showCategoryModal = () => {
+  categoryModalVisible.value = true
+  Object.assign(categoryFormData, {
+    name: ''
+  })
+}
+
+// 分类模态框确认
+const handleCategoryOk = async () => {
+  try {
+    await categoryFormRef.value.validate()
+    message.success('分类添加成功')
+    categoryModalVisible.value = false
+  } catch (error) {
+    console.error('表单验证失败:', error)
+  }
+}
+
+// 分类模态框取消
+const handleCategoryCancel = () => {
+  categoryModalVisible.value = false
+  categoryFormRef.value?.resetFields()
 }
 
 // 模态框确认

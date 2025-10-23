@@ -1,15 +1,11 @@
 <template>
-  <div class="maintenance-container">
-    <a-card title="维护管理" class="page-card">
+  <div class="lab-maintenance-container">
+    <a-card title="实验室维护" class="page-card">
       <template #extra>
         <a-space>
           <a-button type="primary" @click="showAddModal">
             <plus-outlined />
             添加维护任务
-          </a-button>
-          <a-button @click="handleScheduleMaintenance">
-            <calendar-outlined />
-            安排维护
           </a-button>
         </a-space>
       </template>
@@ -101,13 +97,15 @@
               {{ getPriorityText(record.priority) }}
             </a-tag>
           </template>
+          <template v-else-if="column.key === 'laboratory'">
+            <a-tag color="blue">{{ getLaboratoryName(record.laboratoryId) }}</a-tag>
+          </template>
           <template v-else-if="column.key === 'progress'">
             <a-progress :percent="record.progress" :show-info="false" size="small" />
             <span style="margin-left: 8px">{{ record.progress }}%</span>
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleView(record)"> 查看 </a-button>
               <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
               <a-button v-if="record.status === 'pending'" type="link" size="small" @click="handleStart(record)"> 开始 </a-button>
               <a-button v-if="record.status === 'inProgress'" type="link" size="small" @click="handleComplete(record)"> 完成 </a-button>
@@ -133,9 +131,9 @@
             <a-form-item label="维护类型" name="type">
               <a-select v-model:value="formData.type">
                 <a-select-option value="routine">常规维护</a-select-option>
-                <a-select-option value="repair">故障维修</a-select-option>
                 <a-select-option value="cleaning">清洁保养</a-select-option>
                 <a-select-option value="inspection">安全检查</a-select-option>
+                <a-select-option value="repair">故障维修</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -152,22 +150,13 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="关联设备" name="equipmentId">
-              <a-select v-model:value="formData.equipmentId">
-                <a-select-option v-for="equipment in filteredEquipment" :key="equipment.id" :value="equipment.id">
-                  {{ equipment.name }}
-                </a-select-option>
-              </a-select>
+            <a-form-item label="负责人" name="assignee">
+              <a-input v-model:value="formData.assignee" />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="负责人" name="assignee">
-              <a-input v-model:value="formData.assignee" />
-            </a-form-item>
-          </a-col>
           <a-col :span="12">
             <a-form-item label="优先级" name="priority">
               <a-select v-model:value="formData.priority">
@@ -178,8 +167,12 @@
               </a-select>
             </a-form-item>
           </a-col>
+          <a-col :span="12">
+            <a-form-item label="负责人手机号" name="mobile">
+              <a-input v-model:value="formData.mobile" style="width: 100%" />
+            </a-form-item>
+          </a-col>
         </a-row>
-
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="计划开始时间" name="plannedStartDate">
@@ -192,7 +185,6 @@
             </a-form-item>
           </a-col>
         </a-row>
-
         <a-form-item label="维护内容" name="description">
           <a-textarea v-model:value="formData.description" placeholder="请详细描述维护内容" :rows="4" />
         </a-form-item>
@@ -221,12 +213,11 @@ const formRef = ref()
 const searchForm = reactive({
   title: '',
   status: '',
-  type: ''
+  priority: ''
 })
 
 // 数据
 const laboratories = ref([])
-const equipment = ref([])
 const maintenance = ref([])
 const pagination = reactive({
   current: 1,
@@ -262,12 +253,22 @@ const columns = [
     width: 100
   },
   {
+    title: '实验室',
+    key: 'laboratory',
+    width: 150
+  },
+  {
     title: '负责人',
     dataIndex: 'assignee',
     key: 'assignee',
     width: 120
   },
-
+  {
+    title: '负责人手机号',
+    dataIndex: 'mobile',
+    key: 'mobile',
+    width: 120
+  },
   {
     title: '计划时间',
     dataIndex: 'plannedStartDate',
@@ -291,9 +292,9 @@ const formData = reactive({
   title: '',
   type: '',
   laboratoryId: '',
-  equipmentId: '',
   assignee: '',
   priority: 'medium',
+  mobile: '',
   plannedStartDate: null,
   plannedEndDate: null,
   description: '',
@@ -307,6 +308,7 @@ const formRules = {
   laboratoryId: [{ required: true, message: '请选择关联实验室' }],
   assignee: [{ required: true, message: '请输入负责人' }],
   priority: [{ required: true, message: '请选择优先级' }],
+  mobile: [{ required: true, message: '请输入负责人手机号' }],
   plannedStartDate: [{ required: true, message: '请选择计划开始时间' }],
   plannedEndDate: [{ required: true, message: '请选择计划完成时间' }]
 }
@@ -337,9 +339,9 @@ const getStatusText = (status) => {
 const getTypeColor = (type) => {
   const colors = {
     routine: 'blue',
-    repair: 'red',
     cleaning: 'green',
-    inspection: 'orange'
+    inspection: 'orange',
+    repair: 'red'
   }
   return colors[type] || 'default'
 }
@@ -348,9 +350,9 @@ const getTypeColor = (type) => {
 const getTypeText = (type) => {
   const texts = {
     routine: '常规维护',
-    repair: '故障维修',
     cleaning: '清洁保养',
-    inspection: '安全检查'
+    inspection: '安全检查',
+    repair: '故障维修'
   }
   return texts[type] || type
 }
@@ -377,6 +379,12 @@ const getPriorityText = (priority) => {
   return texts[priority] || priority
 }
 
+// 获取实验室名称
+const getLaboratoryName = (laboratoryId) => {
+  const lab = laboratories.value.find((l) => l.id === laboratoryId)
+  return lab ? lab.name : '未知实验室'
+}
+
 // 筛选后的维护数据
 const filteredMaintenance = computed(() => {
   let result = maintenance.value
@@ -389,17 +397,11 @@ const filteredMaintenance = computed(() => {
     result = result.filter((item) => item.status === searchForm.status)
   }
 
-  if (searchForm.type) {
-    result = result.filter((item) => item.type === searchForm.type)
+  if (searchForm.priority) {
+    result = result.filter((item) => item.priority === searchForm.priority)
   }
 
   return result
-})
-
-// 筛选后的设备数据
-const filteredEquipment = computed(() => {
-  if (!formData.laboratoryId) return equipment.value
-  return equipment.value.filter((item) => item.laboratoryId === formData.laboratoryId)
 })
 
 // 加载数据
@@ -410,55 +412,51 @@ const loadData = async () => {
     const labsRes = await mockApi.getLaboratories()
     laboratories.value = labsRes.data
 
-    // 加载设备数据
-    const equipmentRes = await mockApi.getEquipment()
-    equipment.value = equipmentRes.data
-
-    // 生成维护任务数据
+    // 生成实验室维护任务数据
     maintenance.value = [
       {
         id: 1,
-        title: '化学实验室A设备维护',
+        title: '化学实验室A环境维护',
         type: 'routine',
         status: 'pending',
         priority: 'medium',
         assignee: '张师傅',
         progress: 0,
+        mobile: '13100000001',
         plannedStartDate: '2024-01-15',
         plannedEndDate: '2024-01-16',
         laboratoryId: 1,
-        equipmentId: 1,
-        description: '定期维护化学实验设备',
+        description: '定期维护化学实验室环境',
         remark: '注意安全防护'
       },
       {
         id: 2,
-        title: '物理实验室B设备故障维修',
-        type: 'repair',
+        title: '物理实验室B清洁保养',
+        type: 'cleaning',
         status: 'inProgress',
-        priority: 'high',
+        priority: 'low',
         assignee: '李师傅',
+        mobile: '13100000002',
         progress: 60,
         plannedStartDate: '2024-01-10',
         plannedEndDate: '2024-01-12',
         laboratoryId: 2,
-        equipmentId: 2,
-        description: '修复示波器故障',
-        remark: '需要更换零件'
+        description: '清洁物理实验室设备',
+        remark: '需要更换清洁用品'
       },
       {
         id: 3,
-        title: '生物实验室C清洁保养',
-        type: 'cleaning',
+        title: '生物实验室C安全检查',
+        type: 'inspection',
         status: 'completed',
-        priority: 'low',
+        priority: 'high',
         assignee: '王师傅',
+        mobile: '13100000003',
         progress: 100,
         plannedStartDate: '2024-01-08',
         plannedEndDate: '2024-01-08',
         laboratoryId: 3,
-        equipmentId: 3,
-        description: '清洁实验室环境',
+        description: '检查生物实验室安全设施',
         remark: '已完成'
       }
     ]
@@ -491,7 +489,7 @@ const handleReset = () => {
   Object.assign(searchForm, {
     title: '',
     status: '',
-    type: ''
+    priority: ''
   })
   handleSearch()
 }
@@ -510,19 +508,14 @@ const showAddModal = () => {
     title: '',
     type: '',
     laboratoryId: '',
-    equipmentId: '',
     assignee: '',
     priority: 'medium',
+    mobile: '',
     plannedStartDate: null,
     plannedEndDate: null,
     description: '',
     remark: ''
   })
-}
-
-// 查看任务
-const handleView = (record) => {
-  message.info(`查看维护任务：${record.title}`)
 }
 
 // 编辑任务
@@ -561,12 +554,6 @@ const handleDelete = (record) => {
     message.success('维护任务删除成功')
   }
 }
-
-// 安排维护
-const handleScheduleMaintenance = () => {
-  message.info('安排维护功能')
-}
-
 // 模态框确认
 const handleModalOk = async () => {
   try {
@@ -616,7 +603,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.maintenance-container {
+.lab-maintenance-container {
   padding: 24px;
 }
 

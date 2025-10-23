@@ -39,21 +39,21 @@ export const routes = [
     },
     children: [
       {
-        path: '/user-management/accounts',
-        name: 'AccountManagement',
-        component: () => import('@/views/user-management/accounts/index.vue'),
+        path: '/user-management/students',
+        name: 'StudentManagement',
+        component: () => import('@/views/user-management/students/index.vue'),
         meta: {
-          title: '账号管理',
+          title: '学生管理',
           icon: 'team-outlined'
         }
       },
       {
-        path: '/user-management/roles',
-        name: 'RoleManagement',
-        component: () => import('@/views/user-management/roles/index.vue'),
+        path: '/user-management/teachers',
+        name: 'TeacherManagement',
+        component: () => import('@/views/user-management/teachers/index.vue'),
         meta: {
-          title: '角色分配',
-          icon: 'safety-certificate-outlined'
+          title: '教师管理',
+          icon: 'user-outlined'
         }
       }
     ]
@@ -84,23 +84,34 @@ export const routes = [
           title: '设备管理',
           icon: 'tool-outlined'
         }
-      },
+      }
+    ]
+  },
+  {
+    path: '/maintenance',
+    name: 'Maintenance',
+    component: () => import('@/layouts/index.vue'),
+    meta: {
+      title: '维护管理',
+      icon: 'setting-outlined'
+    },
+    children: [
       {
-        path: '/laboratory-management/maintenance',
-        name: 'MaintenanceManagement',
-        component: () => import('@/views/laboratory-management/maintenance/index.vue'),
+        path: '/maintenance/lab-maintenance',
+        name: 'LabMaintenance',
+        component: () => import('@/views/maintenance/lab-maintenance/index.vue'),
         meta: {
-          title: '维护管理',
-          icon: 'setting-outlined'
+          title: '实验室维护',
+          icon: 'home-outlined'
         }
       },
       {
-        path: '/laboratory-management/import',
-        name: 'ImportData',
-        component: () => import('@/views/laboratory-management/import/index.vue'),
+        path: '/maintenance/equipment-maintenance',
+        name: 'EquipmentMaintenance',
+        component: () => import('@/views/maintenance/equipment-maintenance/index.vue'),
         meta: {
-          title: '数据导入',
-          icon: 'upload-outlined'
+          title: '设备维护',
+          icon: 'tool-outlined'
         }
       }
     ]

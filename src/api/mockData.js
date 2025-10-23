@@ -69,6 +69,7 @@ export const mockAppointments = [
     startTime: '09:00',
     endTime: '11:00',
     purpose: '化学实验教学',
+    name: '张老师',
     status: 'confirmed',
     studentCount: 25
   },
@@ -79,6 +80,7 @@ export const mockAppointments = [
     date: '2024-01-16',
     startTime: '14:00',
     endTime: '16:00',
+    name: '李老师',
     purpose: '物理实验研究',
     status: 'pending',
     studentCount: 15
@@ -90,6 +92,19 @@ export const mockAppointments = [
     date: '2024-01-17',
     startTime: '10:00',
     endTime: '12:00',
+    name: '王老师',
+    purpose: '生物实验教学',
+    status: 'confirmed',
+    studentCount: 20
+  },
+  {
+    id: 4,
+    userId: 3,
+    laboratoryId: 3,
+    date: '2024-01-17',
+    startTime: '10:00',
+    endTime: '12:00',
+    name: '李同学',
     purpose: '生物实验教学',
     status: 'confirmed',
     studentCount: 20

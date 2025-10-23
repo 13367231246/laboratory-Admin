@@ -107,17 +107,10 @@ onMounted(async () => {
     const appointmentsRes = await mockApi.getAppointments()
     const today = new Date().toISOString().split('T')[0]
     todayAppointments.value = appointmentsRes.data
-      .filter((apt) => apt.date === today)
-      .map((apt) => ({
-        laboratoryName: `实验室${apt.laboratoryId}`,
-        time: `${apt.startTime}-${apt.endTime}`,
-        purpose: apt.purpose,
-        status: apt.status
-      }))
 
     // 获取实验室列表
     const labsRes = await mockApi.getLaboratories()
-    laboratories.value = labsRes.data.slice(0, 3) // 只显示前3个
+    laboratories.value = labsRes.data.slice(0, 10) // 只显示前3个
   } catch (error) {
     console.error('获取数据失败:', error)
   }

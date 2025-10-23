@@ -7,9 +7,17 @@
             <plus-outlined />
             添加实验室
           </a-button>
+          <a-button @click="downloadTemplate">
+            <download-outlined />
+            下载模板
+          </a-button>
           <a-button @click="handleBatchImport">
             <upload-outlined />
             批量导入
+          </a-button>
+          <a-button @click="showCategoryModal">
+            <plus-outlined />
+            新增分类
           </a-button>
         </a-space>
       </template>
@@ -21,12 +29,6 @@
             <search-outlined />
           </template>
         </a-input>
-
-        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
-          <a-select-option value="available">可用</a-select-option>
-          <a-select-option value="maintenance">维护中</a-select-option>
-          <a-select-option value="closed">关闭</a-select-option>
-        </a-select>
 
         <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch" class="search-input">
           <a-select-option value="chemistry">化学</a-select-option>
@@ -53,11 +55,6 @@
               :preview="false"
               fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN"
             />
-          </template>
-          <template v-else-if="column.key === 'status'">
-            <a-tag :color="getStatusColor(record.status)">
-              {{ getStatusText(record.status) }}
-            </a-tag>
           </template>
           <template v-else-if="column.key === 'capacity'">
             <a-progress :percent="(record.currentUsers / record.capacity) * 100" :show-info="false" size="small" />
@@ -123,15 +120,6 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :span="12">
-            <a-form-item label="状态" name="status">
-              <a-select v-model:value="formData.status">
-                <a-select-option value="available">可用</a-select-option>
-                <a-select-option value="maintenance">维护中</a-select-option>
-                <a-select-option value="closed">关闭</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
         </a-row>
 
         <a-form-item label="设备列表" name="equipment">
@@ -170,29 +158,49 @@
     <a-modal v-model:open="previewVisible" :footer="null">
       <img alt="preview" style="width: 100%" :src="previewImage" />
     </a-modal>
+
+    <!-- 新增分类模态框 -->
+    <a-modal v-model:open="categoryModalVisible" title="新增分类" @ok="handleCategoryOk" @cancel="handleCategoryCancel">
+      <a-form ref="categoryFormRef" :model="categoryFormData" :rules="categoryFormRules" layout="vertical">
+        <a-form-item label="分类名称" name="name">
+          <a-input v-model:value="categoryFormData.name" placeholder="请输入分类名称" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { message } from 'ant-design-vue'
-import { PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { mockApi } from '@/api/mockData'
 
 const loading = ref(false)
 const modalVisible = ref(false)
 const previewVisible = ref(false)
+const categoryModalVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
+const categoryFormRef = ref()
 const fileList = ref([])
 const previewImage = ref('')
 
 // 搜索表单
 const searchForm = reactive({
   name: '',
-  status: '',
   type: ''
 })
+
+// 分类表单数据
+const categoryFormData = reactive({
+  name: ''
+})
+
+// 分类表单验证规则
+const categoryFormRules = {
+  name: [{ required: true, message: '请输入分类名称' }]
+}
 
 // 表格数据
 const laboratories = ref([])
@@ -241,11 +249,6 @@ const columns = [
     width: 200
   },
   {
-    title: '状态',
-    key: 'status',
-    width: 100
-  },
-  {
     title: '操作',
     key: 'action',
     width: 200
@@ -259,7 +262,6 @@ const formData = reactive({
   location: '',
   capacity: 30,
   type: '',
-  status: 'available',
   equipment: [],
   equipmentCounts: {},
   description: '',
@@ -272,28 +274,7 @@ const formRules = {
   code: [{ required: true, message: '请输入实验室编号' }],
   location: [{ required: true, message: '请输入位置' }],
   capacity: [{ required: true, message: '请输入容量' }],
-  type: [{ required: true, message: '请选择类型' }],
-  status: [{ required: true, message: '请选择状态' }]
-}
-
-// 获取状态颜色
-const getStatusColor = (status) => {
-  const colors = {
-    available: 'green',
-    maintenance: 'orange',
-    closed: 'red'
-  }
-  return colors[status] || 'default'
-}
-
-// 获取状态文本
-const getStatusText = (status) => {
-  const texts = {
-    available: '可用',
-    maintenance: '维护中',
-    closed: '关闭'
-  }
-  return texts[status] || status
+  type: [{ required: true, message: '请选择类型' }]
 }
 
 // 筛选后的实验室数据
@@ -302,10 +283,6 @@ const filteredLaboratories = computed(() => {
 
   if (searchForm.name) {
     result = result.filter((lab) => lab.name.toLowerCase().includes(searchForm.name.toLowerCase()))
-  }
-
-  if (searchForm.status) {
-    result = result.filter((lab) => lab.status === searchForm.status)
   }
 
   if (searchForm.type) {
@@ -343,7 +320,6 @@ const handleSearch = () => {
 const handleReset = () => {
   Object.assign(searchForm, {
     name: '',
-    status: '',
     type: ''
   })
   handleSearch()
@@ -404,9 +380,40 @@ const handleToggleStatus = (record) => {
   message.success(`实验室 ${record.name} 已${newStatus === 'available' ? '启用' : '关闭'}`)
 }
 
+// 下载模板
+const downloadTemplate = () => {
+  message.success('正在下载实验室导入模板.xlsx')
+  // 这里应该实现真实的下载逻辑
+}
+
 // 批量导入
 const handleBatchImport = () => {
   message.info('批量导入功能')
+}
+
+// 显示分类模态框
+const showCategoryModal = () => {
+  categoryModalVisible.value = true
+  Object.assign(categoryFormData, {
+    name: ''
+  })
+}
+
+// 分类模态框确认
+const handleCategoryOk = async () => {
+  try {
+    await categoryFormRef.value.validate()
+    message.success('分类添加成功')
+    categoryModalVisible.value = false
+  } catch (error) {
+    console.error('表单验证失败:', error)
+  }
+}
+
+// 分类模态框取消
+const handleCategoryCancel = () => {
+  categoryModalVisible.value = false
+  categoryFormRef.value?.resetFields()
 }
 
 // 上传前处理
