@@ -9,7 +9,7 @@
         <a-button type="primary" @click="handleSave" :loading="saving" :disabled="!hasUnsavedChanges"> 保存 </a-button>
       </div>
     </div>
-    <MdEditor v-model="content" :toolbars="toolbars" :toolbarsExclude="toolbarsExclude" language="zh-CN" theme="light" previewTheme="github" codeTheme="github" @onUploadImg="handleUploadImg" :preview="!isMobile" :previewOnly="false" class="md-editor" />
+    <MdEditor v-model="content" :toolbars="toolbars" :toolbarsExclude="toolbarsExclude" language="zh-CN" theme="light" previewTheme="github" codeTheme="github" @onUploadImg="handleUploadImg" :preview="true" :previewOnly="false" class="md-editor" />
   </div>
 </template>
 
@@ -25,10 +25,6 @@ const props = defineProps({
   modelValue: {
     type: String,
     default: ''
-  },
-  isMobile: {
-    type: Boolean,
-    default: false
   },
   title: {
     type: String,
@@ -58,9 +54,6 @@ const content = computed({
     hasUnsavedChanges.value = value !== originalContent.value
   }
 })
-
-// 移动端状态
-const isMobile = computed(() => props.isMobile)
 
 // 监听内容变化
 watch(
@@ -107,11 +100,6 @@ const toolbars = computed(() => {
     'catalog'
   ]
 
-  // 移动端简化工具栏
-  if (isMobile.value) {
-    return ['bold', 'italic', 'underline', '-', 'title', 'quote', 'unorderedList', 'orderedList', '-', 'codeRow', 'link', 'image', '-', 'revoke', 'next']
-  }
-
   return baseToolbars
 })
 
@@ -153,9 +141,6 @@ const handleSave = async () => {
     saving.value = true
     // 触发保存事件，让父组件处理保存逻辑
     emit('save', content.value)
-    // 更新原始内容
-    originalContent.value = content.value
-    hasUnsavedChanges.value = false
   } catch (error) {
     console.error('保存失败:', error)
   } finally {

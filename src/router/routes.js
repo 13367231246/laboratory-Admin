@@ -127,6 +127,35 @@ export const routes = [
     ]
   },
   {
+    path: '/announcements',
+    name: 'Announcements',
+    component: () => import('@/layouts/index.vue'),
+    meta: {
+      title: '公告管理',
+      icon: 'notification-outlined'
+    },
+    children: [
+      {
+        path: '/announcements/publish/:id?',
+        name: 'PublishAnnouncement',
+        component: () => import('@/views/announcements/publish/index.vue'),
+        meta: {
+          title: '发布公告',
+          icon: 'edit-outlined'
+        }
+      },
+      {
+        path: '/announcements/list',
+        name: 'AnnouncementList',
+        component: () => import('@/views/announcements/list/index.vue'),
+        meta: {
+          title: '公告列表',
+          icon: 'unordered-list-outlined'
+        }
+      }
+    ]
+  },
+  {
     path: '/process-management',
     name: 'ProcessManagement',
     component: () => import('@/layouts/index.vue'),
