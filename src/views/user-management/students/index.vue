@@ -230,7 +230,7 @@ const loadStudents = async () => {
     const response = await mockApi.getUsers()
     // 筛选出学生用户
     students.value = response.data
-      .filter(user => user.role === 'student')
+      .filter((user) => user.role === 'student')
       .map((user) => ({
         ...user,
         email: `${user.username}@student.com`,

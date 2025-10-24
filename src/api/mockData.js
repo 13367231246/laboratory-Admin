@@ -16,7 +16,8 @@ export const mockUsers = [
     nickname: '张老师',
     avatar: '',
     role: 'teacher',
-    department: '化学实验室'
+    department: '化学实验室',
+    assignedLabs: [1, 2]
   },
   {
     id: 3,

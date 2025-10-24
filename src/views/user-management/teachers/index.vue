@@ -42,6 +42,13 @@
               {{ record.nickname?.charAt(0) }}
             </a-avatar>
           </template>
+          <template v-else-if="column.key === 'assignedLabs'">
+            <a-space wrap>
+              <a-tag v-for="labId in record.assignedLabs" :key="labId" color="blue">
+                {{ getLabName(labId) }}
+              </a-tag>
+            </a-space>
+          </template>
           <template v-else-if="column.key === 'status'">
             <a-tag :color="record.status === 'active' ? 'green' : 'red'">
               {{ record.status === 'active' ? '活跃' : '禁用' }}
@@ -50,14 +57,12 @@
           <template v-else-if="column.key === 'action'">
             <a-space>
               <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
+              <a-button type="link" size="small" @click="showAssignModal(record)"> 分配权限 </a-button>
               <a-button type="link" size="small" @click="handleResetPassword(record)"> 重置密码 </a-button>
               <a-popconfirm :title="`确定要${record.status === 'active' ? '禁用' : '启用'}该教师吗？`" @confirm="handleToggleStatus(record)">
                 <a-button type="link" size="small" :danger="record.status === 'active'">
                   {{ record.status === 'active' ? '禁用' : '启用' }}
                 </a-button>
-              </a-popconfirm>
-              <a-popconfirm title="确定要删除该教师吗？" @confirm="handleDelete(record)">
-                <a-button type="link" size="small" danger> 删除 </a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -99,6 +104,15 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- 分配权限模态框 -->
+    <a-modal v-model:open="assignModalVisible" title="分配权限" @ok="handleAssignOk" @cancel="handleAssignCancel">
+      <a-form layout="vertical">
+        <a-form-item :label="`为 ${currentTeacher.nickname} 分配实验室`">
+          <a-select v-model:value="assignedLabs" mode="multiple" placeholder="请选择实验室" style="width: 100%" :options="labOptions"></a-select>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -110,8 +124,12 @@ import { mockApi } from '@/api/mockData'
 
 const loading = ref(false)
 const modalVisible = ref(false)
+const assignModalVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
+const currentTeacher = ref({})
+const assignedLabs = ref([])
+const labOptions = ref([])
 
 // 搜索表单
 const searchForm = reactive({
@@ -145,6 +163,11 @@ const columns = [
     title: '昵称',
     dataIndex: 'nickname',
     key: 'nickname'
+  },
+  {
+    title: '分配实验室',
+    key: 'assignedLabs',
+    width: 220
   },
   {
     title: '工号',
@@ -243,9 +266,10 @@ const filteredTeachers = computed(() => {
 const loadTeachers = async () => {
   loading.value = true
   try {
-    const response = await mockApi.getUsers()
+    const [usersRes, labsRes] = await Promise.all([mockApi.getUsers(), mockApi.getLaboratories()])
+
     // 筛选出教师用户
-    teachers.value = response.data
+    teachers.value = usersRes.data
       .filter((user) => user.role === 'teacher')
       .map((user) => ({
         ...user,
@@ -255,14 +279,22 @@ const loadTeachers = async () => {
         department: '计算机学院',
         title: 'lecturer',
         status: 'active',
-        createdAt: '2024-01-01'
+        createdAt: '2024-01-01',
+        assignedLabs: user.assignedLabs || []
       }))
     pagination.total = teachers.value.length
+
+    labOptions.value = labsRes.data.map((lab) => ({ label: lab.name, value: lab.id }))
   } catch (error) {
-    message.error('加载教师数据失败')
+    message.error('加载数据失败')
   } finally {
     loading.value = false
   }
+}
+
+const getLabName = (labId) => {
+  const lab = labOptions.value.find((l) => l.value === labId)
+  return lab ? lab.label : ''
 }
 
 // 搜索
@@ -307,6 +339,25 @@ const handleEdit = (record) => {
   isEdit.value = true
   modalVisible.value = true
   Object.assign(formData, record)
+}
+
+// 显示分配权限模态框
+const showAssignModal = (record) => {
+  currentTeacher.value = record
+  assignedLabs.value = record.assignedLabs || []
+  assignModalVisible.value = true
+}
+
+// 分配权限确认
+const handleAssignOk = () => {
+  currentTeacher.value.assignedLabs = assignedLabs.value
+  message.success('权限分配成功')
+  assignModalVisible.value = false
+}
+
+// 分配权限取消
+const handleAssignCancel = () => {
+  assignModalVisible.value = false
 }
 
 // 重置密码
