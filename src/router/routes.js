@@ -81,8 +81,18 @@ export const routes = [
         name: 'EquipmentManagement',
         component: () => import('@/views/laboratory-management/equipment/index.vue'),
         meta: {
-          title: '设备管理',
+          title: '设备列表',
           icon: 'tool-outlined'
+        }
+      },
+      {
+        // 申请列表
+        path: '/laboratory-management/application',
+        name: 'ApplicationManagement',
+        component: () => import('@/views/laboratory-management/application/index.vue'),
+        meta: {
+          title: '申请列表',
+          icon: 'file-text-outlined'
         }
       }
     ]

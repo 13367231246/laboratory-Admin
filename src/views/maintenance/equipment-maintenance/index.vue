@@ -152,6 +152,19 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
+            <a-form-item label="负责人" name="assignee">
+              <a-input v-model:value="formData.assignee" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="联系方式" name="contact">
+              <a-input v-model:value="formData.contact" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
             <a-form-item label="优先级" name="priority">
               <a-select v-model:value="formData.priority">
                 <a-select-option value="low">低</a-select-option>
@@ -159,19 +172,6 @@
                 <a-select-option value="high">高</a-select-option>
                 <a-select-option value="urgent">紧急</a-select-option>
               </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="负责人" name="assignee">
-              <a-input v-model:value="formData.assignee" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="负责人手机号" name="mobile">
-              <a-input v-model:value="formData.mobile" style="width: 100%" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -269,9 +269,9 @@ const columns = [
     width: 120
   },
   {
-    title: '负责人手机号',
-    dataIndex: 'mobile',
-    key: 'mobile',
+    title: '联系方式',
+    dataIndex: 'contact',
+    key: 'contact',
     width: 120
   },
   {
@@ -299,6 +299,7 @@ const formData = reactive({
   laboratoryId: '',
   equipmentId: '',
   assignee: '',
+  contact: '',
   priority: 'medium',
   plannedStartDate: null,
   plannedEndDate: null,
@@ -313,6 +314,7 @@ const formRules = {
   laboratoryId: [{ required: true, message: '请选择所属实验室' }],
   equipmentId: [{ required: true, message: '请选择关联设备' }],
   assignee: [{ required: true, message: '请输入负责人' }],
+  contact: [{ required: true, message: '请输入联系方式' }],
   priority: [{ required: true, message: '请选择优先级' }],
   plannedStartDate: [{ required: true, message: '请选择计划开始时间' }],
   plannedEndDate: [{ required: true, message: '请选择计划完成时间' }]
@@ -446,7 +448,7 @@ const loadData = async () => {
         status: 'pending',
         priority: 'medium',
         assignee: '张师傅',
-        mobile: '13100000001',
+        contact: '13812345678',
         progress: 0,
         plannedStartDate: '2024-01-15',
         plannedEndDate: '2024-01-16',
@@ -461,7 +463,7 @@ const loadData = async () => {
         status: 'inProgress',
         priority: 'high',
         assignee: '李师傅',
-        mobile: '13100000001',
+        contact: '13987654321',
         progress: 60,
         plannedStartDate: '2024-01-10',
         plannedEndDate: '2024-01-12',
@@ -476,8 +478,8 @@ const loadData = async () => {
         type: 'calibration',
         status: 'completed',
         priority: 'medium',
-        assignee: '李师傅',
-        mobile: '13100000001',
+        assignee: '王师傅',
+        contact: '13711223344',
         progress: 100,
         plannedStartDate: '2024-01-08',
         plannedEndDate: '2024-01-08',
@@ -536,7 +538,7 @@ const showAddModal = () => {
     laboratoryId: '',
     equipmentId: '',
     assignee: '',
-    mobile: '',
+    contact: '',
     priority: 'medium',
     plannedStartDate: null,
     plannedEndDate: null,

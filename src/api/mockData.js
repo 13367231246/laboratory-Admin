@@ -59,6 +59,65 @@ export const mockLaboratories = [
   }
 ]
 
+// 申请数据
+export const mockLabApplications = [
+  {
+    id: 1,
+    applicant: '张老师',
+    usageType: 'course',
+    labName: '化学实验室A',
+    requiredEquipment: '显微镜 x5, 烧杯 x20',
+    usageTime: '2025-11-10 09:00-11:00',
+    peopleCount: 25,
+    contact: '139-xxxx-xxxx',
+    purpose: '大一化学实验课',
+    specialRequirements: '需要通风橱',
+    status: 'pending' // pending, approved, rejected
+  },
+  {
+    id: 2,
+    applicant: '王教授',
+    usageType: 'personal',
+    labName: '物理实验室B',
+    requiredEquipment: '示波器 x2',
+    usageTime: '2025-11-12 14:00-17:00',
+    peopleCount: 5,
+    contact: '138-xxxx-xxxx',
+    purpose: '引力波项目研究',
+    specialRequirements: '保持绝对安静',
+    status: 'approved'
+  }
+]
+
+export const mockEquipmentApplications = [
+  {
+    id: 1,
+    applicant: '李同学',
+    usageType: 'personal',
+    equipmentName: '高速离心机',
+    labName: '化学实验室A',
+    usageTime: '2025-11-11 14:00-15:00',
+    quantity: 1,
+    contact: '137-xxxx-xxxx',
+    purpose: '个人科研项目',
+    specialRequirements: '需要预冷至4度',
+    status: 'pending'
+  },
+  {
+    id: 2,
+    applicant: '赵老师',
+    usageType: 'course',
+    equipmentName: '数字示波器',
+    labName: '物理实验室B',
+    usageTime: '2025-11-13 10:00-12:00',
+    quantity: 10,
+    contact: '136-xxxx-xxxx',
+    purpose: '电子工程实验课',
+    specialRequirements: '请准备好多路探头',
+    status: 'rejected'
+  }
+]
+
 // 预约数据
 export const mockAppointments = [
   {
@@ -166,6 +225,10 @@ export const mockApi = {
 
   // 获取设备列表
   getEquipment: () => Promise.resolve({ code: 200, data: mockEquipment }),
+
+  // 获取申请列表
+  getLabApplications: () => Promise.resolve({ code: 200, data: mockLabApplications }),
+  getEquipmentApplications: () => Promise.resolve({ code: 200, data: mockEquipmentApplications }),
 
   // 获取统计数据
   getStatistics: () => Promise.resolve({ code: 200, data: mockStatistics }),

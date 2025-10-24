@@ -14,9 +14,9 @@
     </a-row>
 
     <a-row :gutter="16" style="margin-top: 16px">
-      <!-- 今日预约 -->
+      <!-- 今日申请 -->
       <a-col :span="12">
-        <a-card title="今日预约" class="info-card">
+        <a-card title="今日申请" class="info-card">
           <a-list :data-source="todayAppointments" item-layout="horizontal">
             <template #renderItem="{ item }">
               <a-list-item>
@@ -24,11 +24,14 @@
                   <template #title>
                     <a>{{ item.laboratoryName }}</a>
                   </template>
-                  <template #description> {{ item.time }} - {{ item.purpose }} </template>
+                  <template #description>
+                    <p>申请人: {{ item.applicant }} | 联系方式: {{ item.contact }}</p>
+                    <p>{{ item.time }} - {{ item.purpose }}</p>
+                  </template>
                 </a-list-item-meta>
                 <template #actions>
                   <a-tag :color="item.status === 'confirmed' ? 'green' : 'orange'">
-                    {{ item.status === 'confirmed' ? '已确认' : '待确认' }}
+                    {{ item.status === 'confirmed' ? '已通过' : '待审批' }}
                   </a-tag>
                 </template>
               </a-list-item>
@@ -106,7 +109,13 @@ onMounted(async () => {
     // 获取今日预约
     const appointmentsRes = await mockApi.getAppointments()
     const today = new Date().toISOString().split('T')[0]
-    todayAppointments.value = appointmentsRes.data
+    todayAppointments.value = appointmentsRes.data.map((item) => ({
+      ...item,
+      laboratoryName: `实验室 ${item.laboratoryId}`,
+      time: `${item.startTime}-${item.endTime}`,
+      applicant: item.name,
+      contact: '138-xxxx-xxxx'
+    }))
 
     // 获取实验室列表
     const labsRes = await mockApi.getLaboratories()
@@ -129,7 +138,6 @@ onMounted(async () => {
 }
 
 .info-card {
-  height: 400px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
