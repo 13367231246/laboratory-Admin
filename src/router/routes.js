@@ -174,15 +174,6 @@ export const routes = [
         }
       },
       {
-        path: '/process-management/feedback',
-        name: 'FeedbackManagement',
-        component: () => import('@/views/process-management/feedback/index.vue'),
-        meta: {
-          title: '反馈处理',
-          icon: 'message-outlined'
-        }
-      },
-      {
         path: '/process-management/schedule',
         name: 'ScheduleManagement',
         component: () => import('@/views/process-management/schedule/index.vue'),
