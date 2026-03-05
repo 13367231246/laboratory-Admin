@@ -1,108 +1,29 @@
 <template>
   <div class="profile-container">
-    <div class="profile-layout">
-      <!-- 左侧：用户信息展示 -->
-      <div class="profile-left">
-        <UserInfoCard :user-info="userInfo" @show-avatar-upload="showAvatarUpload" />
-      </div>
+    <a-card class="password-card" :bordered="false">
+      <template #title>
+        <div class="card-title">
+          <LockOutlined class="title-icon" />
+          修改密码
+        </div>
+      </template>
 
-      <!-- 右侧：编辑区域 -->
-      <div class="profile-right">
-        <a-card class="edit-card" :bordered="false">
-          <template #title>
-            <div class="card-title">
-              <SettingOutlined class="title-icon" />
-              账户设置
-            </div>
-          </template>
-
-          <a-tabs v-model:activeKey="activeTab" class="profile-tabs">
-            <!-- 编辑信息标签页 -->
-            <a-tab-pane key="edit" tab="编辑信息">
-              <template #tab>
-                <span>
-                  <EditOutlined />
-                  编辑信息
-                </span>
-              </template>
-
-              <EditProfileForm :user-info="userInfo" @success="handleEditSuccess" />
-            </a-tab-pane>
-
-            <!-- 修改密码标签页 -->
-            <a-tab-pane key="password" tab="修改密码">
-              <template #tab>
-                <span>
-                  <LockOutlined />
-                  修改密码
-                </span>
-              </template>
-
-              <ChangePasswordForm @success="handlePasswordSuccess" />
-            </a-tab-pane>
-          </a-tabs>
-        </a-card>
-      </div>
-    </div>
-
-    <!-- 头像上传组件 -->
-    <AvatarUpload v-model:open="avatarModalVisible" @success="handleAvatarSuccess" />
+      <ChangePasswordForm @success="handlePasswordSuccess" />
+    </a-card>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
-import { EditOutlined, LockOutlined, SettingOutlined } from '@ant-design/icons-vue'
-import { useUserStore } from '@/stores/user'
-import { getUserInfo } from '@/api/profile'
-import UserInfoCard from './components/UserInfoCard.vue'
-import AvatarUpload from './components/AvatarUpload.vue'
-import EditProfileForm from './components/EditProfileForm.vue'
+import { LockOutlined } from '@ant-design/icons-vue'
 import ChangePasswordForm from './components/ChangePasswordForm.vue'
+import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()
-
-// 响应式数据
-const avatarModalVisible = ref(false)
-const activeTab = ref('edit')
-
-// 用户信息 - 从store获取
-const userInfo = computed(() => userStore.user)
-
-// 显示头像上传模态框
-const showAvatarUpload = () => {
-  avatarModalVisible.value = true
-}
-
-// 处理头像上传成功
-const handleAvatarSuccess = (avatarUrl) => {
-  userStore.updateAvatar(avatarUrl)
-}
-
-// 处理编辑信息成功
-const handleEditSuccess = (userData) => {
-  userStore.updateUserInfo(userData)
-}
-
 // 处理密码修改成功
 const handlePasswordSuccess = () => {
-  // 密码修改成功后的处理逻辑
   console.log('密码修改成功')
+  userStore.loginOut()
 }
-
-// 组件挂载时加载用户信息
-onMounted(async () => {
-  try {
-    const result = await getUserInfo()
-    if (result.success) {
-      userStore.updateUserInfo(result.data)
-    }
-  } catch (error) {
-    console.error('加载用户信息失败:', error)
-    message.error('加载用户信息失败!')
-  }
-})
 </script>
 
 <style scoped>

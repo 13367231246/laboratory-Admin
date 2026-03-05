@@ -1,13 +1,7 @@
 <template>
-  <a-form
-    ref="formRef"
-    :model="form"
-    :rules="rules"
-    layout="vertical"
-    class="profile-form"
-  >
-    <a-form-item label="当前密码" name="currentPassword">
-      <a-input-password v-model:value="form.currentPassword" placeholder="请输入当前密码" />
+  <a-form ref="formRef" :model="form" :rules="rules" layout="vertical" class="profile-form">
+    <a-form-item label="当前密码" name="oldPassword">
+      <a-input-password v-model:value="form.oldPassword" placeholder="请输入当前密码" />
     </a-form-item>
 
     <a-form-item label="新密码" name="newPassword">
@@ -31,7 +25,7 @@
 import { ref, reactive } from 'vue'
 import { message } from 'ant-design-vue'
 import { LockOutlined } from '@ant-design/icons-vue'
-import { changePassword } from '@/api/profile'
+import { changePasswordService } from '@/api/profile'
 
 // 定义emits
 const emit = defineEmits(['success'])
@@ -42,14 +36,14 @@ const loading = ref(false)
 
 // 表单数据
 const form = reactive({
-  currentPassword: '',
+  oldPassword: '',
   newPassword: '',
   confirmPassword: ''
 })
 
 // 表单验证规则
 const rules = {
-  currentPassword: [
+  oldPassword: [
     { required: true, message: '请输入当前密码', trigger: 'blur' }
   ],
   newPassword: [
@@ -75,22 +69,23 @@ const handleSubmit = async () => {
   try {
     // 表单验证
     await formRef.value.validate()
-    
+
     loading.value = true
-    const result = await changePassword({
-      currentPassword: form.currentPassword,
-      newPassword: form.newPassword
+    const result = await changePasswordService({
+      oldPassword: form.oldPassword,
+      newPassword: form.newPassword,
+      confirmPassword: form.confirmPassword
     })
 
-    if (result.success) {
+    if (result.code === 0) {
       message.success('密码修改成功!')
       // 重置表单
-      form.currentPassword = ''
+      form.oldPassword = ''
       form.newPassword = ''
       form.confirmPassword = ''
       emit('success')
     } else {
-      message.error(result.message || '密码修改失败!')
+      message.error(result.data.message || '密码修改失败!')
     }
   } catch (error) {
     if (error.errorFields) {
@@ -98,7 +93,6 @@ const handleSubmit = async () => {
       return
     }
     console.error('密码修改失败:', error)
-    message.error('密码修改失败!')
   } finally {
     loading.value = false
   }

@@ -1,18 +1,11 @@
 import { defineStore } from 'pinia'
+import { userLoginService, getAdminInfoService } from '@/api/profile'
+import { message } from 'ant-design-vue'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     token: localStorage.getItem('token') || '',
-    user: {
-      id: 1,
-      avatar: '',
-      nickname: '管理员',
-      username: 'admin',
-      phone: '13800138000',
-      email: 'admin@example.com',
-      gender: 1, // 1: 男, 2: 女, 0: 保密
-      createTime: new Date('2024-01-01')
-    },
+    user: {},
     isLoggedIn: false
   }),
   persist: {
@@ -31,53 +24,32 @@ export const useUserStore = defineStore('user', {
   actions: {
     // 用户登录
     async login(username, password) {
-      try {
-        // 模拟登录验证
-        if (username === 'admin' && password === '123456') {
-          this.token = 'mock-token-' + Date.now()
+        const response = await userLoginService({ username, password })
+        console.log(response)
+        if (response.code === 0 && response.data) {
+          // 保存token
+          this.token = response.data
           this.isLoggedIn = true
-          this.user = {
-            id: 1,
-            avatar: '',
-            nickname: '管理员',
-            username: username
-          }
           localStorage.setItem('token', this.token)
+          const adminInfo = await getAdminInfoService()
+          if (adminInfo.code === 0 && adminInfo.data) {
+            this.user = adminInfo.data
+          }
           return true
+        } else {
+          message.error(response.message || '登录失败')
+          return false
         }
-        return false
-      } catch (error) {
-        console.error('登录失败:', error)
-        return false
-      }
+
     },
     // 退出登录
-    loginOut() {
-      this.token = ''
-      this.isLoggedIn = false
-      this.user = {
-        id: 0,
-        avatar: '',
-        nickname: '',
-        username: ''
-      }
+    async loginOut() {
+      // 清空本地存储
       localStorage.removeItem('token')
-    },
-    // 重置状态
-    resetState() {
       this.token = ''
       this.isLoggedIn = false
-      this.user = {
-        id: 0,
-        avatar: '',
-        nickname: '',
-        username: '',
-        phone: '',
-        email: '',
-        gender: 0,
-        createTime: null
-      }
     },
+
     // 更新用户信息
     updateUserInfo(userData) {
       this.user = { ...this.user, ...userData }

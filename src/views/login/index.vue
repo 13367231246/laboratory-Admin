@@ -62,11 +62,10 @@ const handleFinish = async (values) => {
     if (success) {
       message.success('登录成功')
       router.push('/')
-    } else {
-      message.error('用户名或密码错误')
     }
+    // 错误信息已经在store中处理，这里不需要额外显示
   } catch (error) {
-    message.error('登录失败')
+    console.error('登录异常:', error)
   } finally {
     loading.value = false
   }
