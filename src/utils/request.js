@@ -92,7 +92,7 @@ export function setupResponseInterceptor(axiosInstance) {
       // 401：未授权，跳转登录页（与示例一致）
       if (error.response?.status === 401) {
         console.log('用户未授权，清除登录状态')
-        userStore.logout()
+        userStore.loginOut()
         router.push('/login')
       }
 

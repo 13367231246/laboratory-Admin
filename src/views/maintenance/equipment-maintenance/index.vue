@@ -183,9 +183,9 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="计划完成时间" name="plannedEndDate">
-              <a-date-picker v-model:value="formData.plannedEndDate" style="width: 100%" />
-            </a-form-item>
+        <a-form-item label="计划完成时间" name="plannedEndDate">
+          <a-date-picker v-model:value="formData.plannedEndDate" style="width: 100%" />
+        </a-form-item>
           </a-col>
         </a-row>
 

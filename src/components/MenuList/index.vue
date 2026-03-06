@@ -17,16 +17,7 @@
 
       <!-- 递归渲染子菜单 -->
       <template v-for="child in route.children" :key="child.path">
-        <!-- 子菜单还有子菜单 -->
-        <a-sub-menu v-if="child.children && child.children.length > 0" :key="child.path">
-          <template #icon>
-            <component :is="getAntdIcon(child.meta?.icon)" v-if="child.meta?.icon" />
-          </template>
-          <template #title>{{ child.meta?.title }}</template>
-        </a-sub-menu>
-
-        <!-- 子菜单项 -->
-        <a-menu-item v-else :key="child.path">
+        <a-menu-item v-if="!child.meta?.hidden" :key="child.path">
           <template #icon>
             <component :is="getAntdIcon(child.meta?.icon)" v-if="child.meta?.icon" />
           </template>

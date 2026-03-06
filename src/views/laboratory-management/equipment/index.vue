@@ -15,17 +15,13 @@
             <upload-outlined />
             批量导入
           </a-button>
-
-          <a-button @click="showCategoryModal">
-            <plus-outlined />
-            新增分类
-          </a-button>
         </a-space>
       </template>
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-input v-model:value="searchForm.name" placeholder="搜索设备名称" allow-clear @change="handleSearch" class="search-input">
+        <a-input v-model:value="searchForm.name" placeholder="搜索设备名称" allow-clear @change="handleSearch"
+          class="search-input">
           <template #prefix>
             <search-outlined />
           </template>
@@ -39,10 +35,13 @@
       </div>
 
       <!-- 设备列表 -->
-      <a-table :columns="columns" :data-source="filteredEquipment" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
+      <a-table :columns="columns" :data-source="filteredEquipment" :pagination="pagination" :loading="loading"
+        row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'laboratory'">
-            <a-tag color="blue">{{ getLaboratoryName(record.laboratoryId) }}</a-tag>
+          <template v-if="column.key === 'status'">
+            <a-tag :color="record.status === 1 ? 'green' : 'red'">
+              {{ record.status === 1 ? '正常' : '禁用' }}
+            </a-tag>
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
@@ -57,52 +56,44 @@
     </a-card>
 
     <!-- 添加/编辑设备模态框 -->
-    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑设备' : '添加设备'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑设备' : '添加设备'" width="800px" @ok="handleModalOk"
+      @cancel="handleModalCancel">
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="设备名称" name="name">
-              <a-input v-model:value="formData.name" />
+            <a-form-item label="资产编号" name="assetNumber">
+              <a-input v-model:value="formData.assetNumber" :disabled="isEdit" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="设备编号" name="code">
-              <a-input v-model:value="formData.code" />
+            <a-form-item label="设备名称" name="equipmentName">
+              <a-input v-model:value="formData.equipmentName" />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="设备类型" name="type">
-              <a-select v-model:value="formData.type">
-                <a-select-option value="optical">光学设备</a-select-option>
-                <a-select-option value="measurement">测量设备</a-select-option>
-                <a-select-option value="separation">分离设备</a-select-option>
-                <a-select-option value="heating">加热设备</a-select-option>
-                <a-select-option value="computer">计算机设备</a-select-option>
-              </a-select>
+            <a-form-item label="设备类型" name="equipmentType">
+              <a-input v-model:value="formData.equipmentType" placeholder="请输入设备类型" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="生产厂家" name="manufacturer">
+              <a-input v-model:value="formData.manufacturer" />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="品牌" name="brand">
-              <a-input v-model:value="formData.brand" />
-            </a-form-item>
-          </a-col>
           <a-col :span="12">
             <a-form-item label="型号" name="model">
               <a-input v-model:value="formData.model" />
             </a-form-item>
           </a-col>
-        </a-row>
-
-        <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="设备数量" name="quantity">
-              <a-input-number v-model:value="formData.quantity" :min="1" :max="9999" style="width: 100%" />
+            <a-form-item label="价格" name="price">
+              <a-input-number v-model:value="formData.price" :min="0" :precision="2" style="width: 100%" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -114,8 +105,26 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="保修期（月）" name="warrantyMonths">
-              <a-input-number v-model:value="formData.warrantyMonths" :min="0" :max="120" style="width: 100%" />
+            <a-form-item label="状态" name="status">
+              <a-radio-group v-model:value="formData.status">
+                <a-radio :value="1">正常</a-radio>
+                <a-radio :value="0">禁用</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+
+        </a-row>
+
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="总数" name="quantity">
+              <a-input-number v-model:value="formData.quantity" :min="1" :max="9999" style="width: 100%" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="可用数量" name="availableQuantity">
+              <a-input-number v-model:value="formData.availableQuantity" :min="0" :max="formData.quantity"
+                style="width: 100%" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -125,28 +134,24 @@
         </a-form-item>
       </a-form>
     </a-modal>
-
-    <!-- 新增分类模态框 -->
-    <a-modal v-model:open="categoryModalVisible" title="新增分类" @ok="handleCategoryOk" @cancel="handleCategoryCancel">
-      <a-form ref="categoryFormRef" :model="categoryFormData" :rules="categoryFormRules" layout="vertical">
-        <a-form-item label="分类名称" name="name">
-          <a-input v-model:value="categoryFormData.name" placeholder="请输入分类名称" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { PlusOutlined, SearchOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons-vue'
-import { mockApi } from '@/api/mockData'
+import {
+  getEquipmentListService,
+  getEquipmentByIdService,
+  createEquipmentService,
+  updateEquipmentService,
+  deleteEquipmentService
+} from '@/api/equipment'
 
 const loading = ref(false)
 const modalVisible = ref(false)
-const categoryModalVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 const categoryFormRef = ref()
@@ -167,7 +172,6 @@ const categoryFormRules = {
 }
 
 // 数据
-const laboratories = ref([])
 const equipment = ref([])
 const pagination = reactive({
   current: 1,
@@ -179,33 +183,51 @@ const pagination = reactive({
 const columns = [
   {
     title: '设备名称',
-    dataIndex: 'name',
-    key: 'name',
+    dataIndex: 'equipmentName',
+    key: 'equipmentName',
     width: 150
   },
   {
-    title: '设备编号',
-    dataIndex: 'code',
-    key: 'code',
+    title: '资产编号',
+    dataIndex: 'assetNumber',
+    key: 'assetNumber',
+    width: 150
+  },
+  {
+    title: '设备类型',
+    dataIndex: 'equipmentType',
+    key: 'equipmentType',
     width: 120
   },
   {
-    title: '类型',
-    dataIndex: 'type',
-    key: 'type',
-    width: 100
+    title: '生产厂家',
+    dataIndex: 'manufacturer',
+    key: 'manufacturer',
+    width: 120
   },
   {
-    title: '品牌',
-    dataIndex: 'brand',
-    key: 'brand',
-    width: 100
+    title: '型号',
+    dataIndex: 'model',
+    key: 'model',
+    width: 120
   },
   {
-    title: '数量',
+    title: '总数',
     dataIndex: 'quantity',
     key: 'quantity',
+    width: 80
+  },
+  {
+    title: '可用数量',
+    dataIndex: 'availableQuantity',
+    key: 'availableQuantity',
     width: 100
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    key: 'status',
+    width: 80
   },
   {
     title: '操作',
@@ -216,24 +238,40 @@ const columns = [
 
 // 表单数据
 const formData = reactive({
-  name: '',
-  code: '',
-  type: '',
-  brand: '',
+  id: null,
+  assetNumber: '',
+  equipmentName: '',
+  equipmentType: '',
   model: '',
-  quantity: 1,
+  manufacturer: '',
   purchaseDate: null,
-  warrantyMonths: 12,
+  price: null,
+  quantity: 1,
+  availableQuantity: 1,
+  status: 1,
   description: ''
 })
 
 // 表单验证规则
 const formRules = {
-  name: [{ required: true, message: '请输入设备名称' }],
-  code: [{ required: true, message: '请输入设备编号' }],
-  type: [{ required: true, message: '请选择设备类型' }],
-  brand: [{ required: true, message: '请输入品牌' }],
+  assetNumber: [{ required: true, message: '请输入资产编号' }],
+  equipmentName: [{ required: true, message: '请输入设备名称' }],
+  equipmentType: [{ required: true, message: '请选择设备类型' }],
+  manufacturer: [{ required: true, message: '请输入生产厂家' }],
   quantity: [{ required: true, message: '请输入设备数量' }]
+}
+
+// 格式化日期
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 // 筛选后的设备数据
@@ -241,7 +279,9 @@ const filteredEquipment = computed(() => {
   let result = equipment.value
 
   if (searchForm.name) {
-    result = result.filter((item) => item.name.toLowerCase().includes(searchForm.name.toLowerCase()))
+    result = result.filter((item) =>
+      item.equipmentName?.toLowerCase().includes(searchForm.name.toLowerCase())
+    )
   }
 
   return result
@@ -250,31 +290,12 @@ const filteredEquipment = computed(() => {
 // 加载数据
 const loadData = async () => {
   loading.value = true
-  try {
-    // 加载实验室数据
-    const labsRes = await mockApi.getLaboratories()
-    laboratories.value = labsRes.data
-
-    // 加载设备数据
-    const equipmentRes = await mockApi.getEquipment()
-    equipment.value = equipmentRes.data.map((item) => ({
-      ...item,
-      code: `EQ${String(item.id).padStart(4, '0')}`,
-      brand: '品牌A',
-      model: 'Model-001',
-      purchaseDate: dayjs('2023-01-01'),
-      warrantyMonths: 24,
-      maintenanceCycle: 90,
-      lastMaintenance: '2024-01-01',
-      nextMaintenance: '2024-04-01',
-      description: '设备描述信息'
-    }))
-    pagination.total = equipment.value.length
-  } catch (error) {
-    message.error('加载数据失败')
-  } finally {
-    loading.value = false
+  const response = await getEquipmentListService(pagination.current, pagination.pageSize)
+  if (response.code === 0 && response.data) {
+    equipment.value = response.data.items || []
+    pagination.total = response.data.total || 0
   }
+  loading.value = false
 }
 
 // 搜索
@@ -294,6 +315,7 @@ const handleReset = () => {
 const handleTableChange = (pag) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
+  loadData()
 }
 
 // 显示添加模态框
@@ -301,35 +323,58 @@ const showAddModal = () => {
   isEdit.value = false
   modalVisible.value = true
   Object.assign(formData, {
-    name: '',
-    code: '',
-    type: '',
-    brand: '',
+    id: null,
+    assetNumber: '',
+    equipmentName: '',
+    equipmentType: '',
     model: '',
-    quantity: 1,
+    manufacturer: '',
     purchaseDate: null,
-    warrantyMonths: 12,
+    price: null,
+    quantity: 1,
+    availableQuantity: 1,
+    status: 1,
     description: ''
   })
 }
 
 // 编辑设备
-const handleEdit = (record) => {
+const handleEdit = async (record) => {
   isEdit.value = true
   modalVisible.value = true
-  Object.assign(formData, {
-    ...record,
-    purchaseDate: dayjs(record.purchaseDate)
-  })
+
+  const response = await getEquipmentByIdService(record.id)
+  if (response.code === 0 && response.data) {
+    Object.assign(formData, {
+      id: response.data.id,
+      assetNumber: response.data.assetNumber,
+      equipmentName: response.data.equipmentName,
+      equipmentType: response.data.equipmentType,
+      model: response.data.model || '',
+      manufacturer: response.data.manufacturer || '',
+      purchaseDate: response.data.purchaseDate ? dayjs(response.data.purchaseDate) : null,
+      price: response.data.price || null,
+      quantity: response.data.quantity || 1,
+      availableQuantity: response.data.availableQuantity || 1,
+      status: response.data.status !== undefined ? response.data.status : 1,
+      description: response.data.description || ''
+    })
+  }
 }
 
 // 删除设备
-const handleDelete = (record) => {
-  const index = equipment.value.findIndex((item) => item.id === record.id)
-  if (index > -1) {
-    equipment.value.splice(index, 1)
-    message.success('设备删除成功')
-  }
+const handleDelete = async (record) => {
+  Modal.confirm({
+    title: '确定要删除该设备吗？',
+    content: `删除后无法恢复，确定要删除设备"${record.equipmentName}"吗？`,
+    onOk: async () => {
+      const response = await deleteEquipmentService(record.id)
+      if (response.code === 0) {
+        message.success('设备删除成功')
+        loadData()
+      }
+    }
+  })
 }
 
 // 批量导入
@@ -342,63 +387,23 @@ const downloadTemplate = () => {
   message.success('正在下载设备导入模板.xlsx')
   // 这里应该实现真实的下载逻辑
 }
-
-// 显示分类模态框
-const showCategoryModal = () => {
-  categoryModalVisible.value = true
-  Object.assign(categoryFormData, {
-    name: ''
-  })
-}
-
-// 分类模态框确认
-const handleCategoryOk = async () => {
-  try {
-    await categoryFormRef.value.validate()
-    message.success('分类添加成功')
-    categoryModalVisible.value = false
-  } catch (error) {
-    console.error('表单验证失败:', error)
-  }
-}
-
-// 分类模态框取消
-const handleCategoryCancel = () => {
-  categoryModalVisible.value = false
-  categoryFormRef.value?.resetFields()
-}
-
 // 模态框确认
 const handleModalOk = async () => {
-  try {
-    await formRef.value.validate()
+  await formRef.value.validate()
 
-    if (isEdit.value) {
-      // 编辑设备
-      const index = equipment.value.findIndex((item) => item.id === formData.id)
-      if (index > -1) {
-        Object.assign(equipment.value[index], {
-          ...formData,
-          purchaseDate: formData.purchaseDate ? formData.purchaseDate.format('YYYY-MM-DD') : null
-        })
-        message.success('设备更新成功')
-      }
-    } else {
-      // 添加设备
-      const newEquipment = {
-        ...formData,
-        id: Date.now(),
-        purchaseDate: formData.purchaseDate ? formData.purchaseDate.format('YYYY-MM-DD') : null,
-        lastMaintenance: dayjs().format('YYYY-MM-DD'),
-        nextMaintenance: dayjs().add(formData.maintenanceCycle, 'day').format('YYYY-MM-DD')
-      }
-      equipment.value.unshift(newEquipment)
-      message.success('设备添加成功')
-    }
+  const submitData = {
+    ...formData,
+    purchaseDate: formData.purchaseDate ? formData.purchaseDate.format('YYYY-MM-DD') : null
+  }
 
+  const response = isEdit.value
+    ? await updateEquipmentService(submitData)
+    : await createEquipmentService(submitData)
+
+  if (response.code === 0) {
+    message.success(isEdit.value ? '设备更新成功' : '设备添加成功')
     modalVisible.value = false
-  } catch (error) {
-    console.error('表单验证失败:', error)
+    loadData()
   }
 }
 
@@ -431,6 +436,7 @@ onMounted(() => {
   background-color: #fafafa;
   border-radius: 6px;
 }
+
 .search-input {
   width: 240px;
 }

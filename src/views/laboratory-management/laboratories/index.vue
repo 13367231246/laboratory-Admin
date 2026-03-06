@@ -15,22 +15,20 @@
             <upload-outlined />
             批量导入
           </a-button>
-          <a-button @click="showCategoryModal">
-            <plus-outlined />
-            新增分类
-          </a-button>
         </a-space>
       </template>
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-input v-model:value="searchForm.name" placeholder="搜索实验室名称" allow-clear @change="handleSearch" class="search-input">
+        <a-input v-model:value="searchForm.name" placeholder="搜索实验室名称" allow-clear @change="handleSearch"
+          class="search-input">
           <template #prefix>
             <search-outlined />
           </template>
         </a-input>
 
-        <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch" class="search-input">
+        <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch"
+          class="search-input">
           <a-select-option value="chemistry">化学</a-select-option>
           <a-select-option value="physics">物理</a-select-option>
           <a-select-option value="biology">生物</a-select-option>
@@ -45,34 +43,25 @@
       </div>
 
       <!-- 实验室列表 -->
-      <a-table :columns="columns" :data-source="filteredLaboratories" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
+      <a-table :columns="columns" :data-source="filteredLaboratories" :pagination="pagination" :loading="loading"
+        row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'image'">
-            <a-image
-              :src="record.image || '/default-lab.jpg'"
-              :width="60"
-              :height="40"
-              :preview="false"
-              fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN"
-            />
-          </template>
-          <template v-else-if="column.key === 'capacity'">
-            <a-progress :percent="(record.currentUsers / record.capacity) * 100" :show-info="false" size="small" />
-            <span style="margin-left: 8px">{{ record.currentUsers }}/{{ record.capacity }}</span>
-          </template>
-          <template v-else-if="column.key === 'equipment'">
-            <a-space wrap>
-              <a-tag v-for="it in getEquipmentListWithCounts(record.equipment, record.equipmentCounts).slice(0, 2)" :key="it.name" color="blue"> {{ it.name }} x{{ it.count }} </a-tag>
-              <a-tag v-if="getEquipmentListWithCounts(record.equipment, record.equipmentCounts).length > 2" color="default"> +{{ getEquipmentListWithCounts(record.equipment, record.equipmentCounts).length - 2 }} </a-tag>
-            </a-space>
+          <template v-if="column.key === 'status'">
+            <a-tag :color="record.status === 1 ? 'green' : 'red'">
+              {{ record.status === 1 ? '正常' : '禁用' }}
+            </a-tag>
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
-              <a-popconfirm :title="`确定要${record.status === 'available' ? '关闭' : '启用'}该实验室吗？`" @confirm="handleToggleStatus(record)">
-                <a-button type="link" size="small" :danger="record.status === 'available'">
-                  {{ record.status === 'available' ? '关闭' : '启用' }}
+              <a-button type="link" size="small" @click="handleEdit(record)">编辑</a-button>
+              <a-popconfirm :title="`确定要${record.status === 1 ? '禁用' : '启用'}该实验室吗？`"
+                @confirm="handleToggleStatus(record)">
+                <a-button type="link" size="small" :danger="record.status === 1">
+                  {{ record.status === 1 ? '禁用' : '启用' }}
                 </a-button>
+              </a-popconfirm>
+              <a-popconfirm title="确定要删除该实验室吗？" @confirm="handleDelete(record)">
+                <a-button type="link" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -81,17 +70,18 @@
     </a-card>
 
     <!-- 添加/编辑实验室模态框 -->
-    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑实验室' : '添加实验室'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑实验室' : '添加实验室'" width="900px" @ok="handleModalOk"
+      @cancel="handleModalCancel">
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="实验室名称" name="name">
-              <a-input v-model:value="formData.name" />
+            <a-form-item label="实验室名称" name="labName">
+              <a-input v-model:value="formData.labName" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="实验室编号" name="code">
-              <a-input v-model:value="formData.code" />
+            <a-form-item label="房间号" name="labNumber">
+              <a-input v-model:value="formData.labNumber" :disabled="isEdit" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -104,52 +94,68 @@
           </a-col>
           <a-col :span="12">
             <a-form-item label="容量" name="capacity">
-              <a-input-number v-model:value="formData.capacity" :min="1" :max="100" style="width: 100%" />
+              <a-input-number v-model:value="formData.capacity" :min="1" :max="1000" style="width: 100%" />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="类型" name="type">
-              <a-select v-model:value="formData.type">
-                <a-select-option value="chemistry">化学实验室</a-select-option>
-                <a-select-option value="physics">物理实验室</a-select-option>
-                <a-select-option value="biology">生物实验室</a-select-option>
-                <a-select-option value="computer">计算机实验室</a-select-option>
-              </a-select>
+            <a-form-item label="面积（平方米）" name="area">
+              <a-input-number v-model:value="formData.area" :min="0" :precision="2" style="width: 100%" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="设备总数" name="equipmentCount">
+              <a-input-number v-model:value="formData.equipmentCount" :min="0" style="width: 100%" disabled />
             </a-form-item>
           </a-col>
         </a-row>
 
-        <a-form-item label="设备列表" name="equipment">
-          <a-select v-model:value="formData.equipment" mode="tags" placeholder="输入设备名称，按回车添加" style="width: 100%">
-            <a-select-option v-for="item in equipmentOptions" :key="item" :value="item">
-              {{ item }}
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="状态" name="status">
+              <a-radio-group v-model:value="formData.status">
+                <a-radio :value="1">正常</a-radio>
+                <a-radio :value="0">禁用</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-form-item label="所属学院" name="colleges">
+          <a-select v-model:value="formData.colleges" mode="multiple" placeholder="请选择学院" style="width: 100%">
+            <a-select-option v-for="college in collegeOptions" :key="college.id" :value="college.id">
+              {{ college.collegeName }}
             </a-select-option>
           </a-select>
-          <a-form-item-rest>
-            <div v-if="formData.equipment.length" style="margin-top: 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px">
-              <div v-for="name in formData.equipment" :key="name" style="display: flex; align-items: center; gap: 8px">
-                <a-tag color="blue">{{ name }}</a-tag>
-                <span>数量</span>
-                <a-input-number :value="formData.equipmentCounts[name]" :min="1" :max="9999" style="width: 100px" @update:value="(val) => (formData.equipmentCounts[name] = Number(val) || 1)" />
-              </div>
-            </div>
-          </a-form-item-rest>
         </a-form-item>
 
         <a-form-item label="描述" name="description">
           <a-textarea v-model:value="formData.description" placeholder="请输入实验室描述" :rows="3" />
         </a-form-item>
 
-        <a-form-item label="图片" name="image">
-          <a-upload v-model:file-list="fileList" list-type="picture-card" :before-upload="beforeUpload" @preview="handlePreview">
-            <div v-if="fileList.length < 1">
-              <plus-outlined />
-              <div style="margin-top: 8px">上传图片</div>
+        <a-form-item label="设备列表">
+          <a-select v-model:value="selectedEquipmentIds" mode="multiple" show-search :filter-option="false"
+            :options="equipmentSelectOptions" placeholder="输入设备名称搜索并选择" @search="handleEquipmentSearch"
+            style="width: 100%" />
+
+          <div v-if="selectedEquipmentIds.length" class="selected-equipment-list">
+            <div v-for="id in selectedEquipmentIds" :key="id" class="selected-equipment-item">
+              <span class="equip-info">
+                {{ getEquipmentById(id)?.equipmentName || '未知设备' }}
+                /
+                {{ getEquipmentById(id)?.model || '-' }}
+                /
+                {{ getEquipmentById(id)?.manufacturer || '-' }}
+                （可用：{{ getEquipmentById(id)?.availableQuantity ?? '-' }}）
+              </span>
+              <a-input-number :min="0" :max="getEquipmentById(id)?.availableQuantity || 9999"
+                :value="selectedEquipment[id] || 0"
+                @update:value="(val) => onSelectEquipmentCount(getEquipmentById(id) || { id }, val)"
+                style="width: 120px; margin-left: 8px" />
             </div>
-          </a-upload>
+          </div>
         </a-form-item>
       </a-form>
     </a-modal>
@@ -158,32 +164,29 @@
     <a-modal v-model:open="previewVisible" :footer="null">
       <img alt="preview" style="width: 100%" :src="previewImage" />
     </a-modal>
-
-    <!-- 新增分类模态框 -->
-    <a-modal v-model:open="categoryModalVisible" title="新增分类" @ok="handleCategoryOk" @cancel="handleCategoryCancel">
-      <a-form ref="categoryFormRef" :model="categoryFormData" :rules="categoryFormRules" layout="vertical">
-        <a-form-item label="分类名称" name="name">
-          <a-input v-model:value="categoryFormData.name" placeholder="请输入分类名称" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { PlusOutlined, SearchOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons-vue'
-import { mockApi } from '@/api/mockData'
+import {
+  getLaboratoryListService,
+  getLaboratoryByIdService,
+  createLaboratoryService,
+  updateLaboratoryService,
+  deleteLaboratoryService
+} from '@/api/laboratory'
+import { getAllCollegesService } from '@/api/college'
+import { listAllEquipmentService } from '@/api/equipment'
 
 const loading = ref(false)
 const modalVisible = ref(false)
 const previewVisible = ref(false)
-const categoryModalVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 const categoryFormRef = ref()
-const fileList = ref([])
 const previewImage = ref('')
 
 // 搜索表单
@@ -204,27 +207,34 @@ const categoryFormRules = {
 
 // 表格数据
 const laboratories = ref([])
+const collegeOptions = ref([])
+// 设备选择相关
+const equipmentSearchName = ref('')
+const equipmentList = ref([])
+const selectedEquipment = reactive({})
+const selectedEquipmentIds = ref([])
 const pagination = reactive({
   current: 1,
   pageSize: 10,
-  total: 0
+  total: 0,
+  showTotal: (total) => `共 ${total} 条`,
+  showSizeChanger: true,
+  pageSizeOptions: ['10', '20', '50', '100']
 })
-
-// 设备选项
-const equipmentOptions = ['显微镜', '离心机', '电子天平', '示波器', '万用表', '信号发生器', '培养箱', '分光光度计', 'pH计', '恒温箱', '干燥箱', '超净工作台']
 
 // 表格列配置
 const columns = [
   {
-    title: '图片',
-    key: 'image',
-    width: 80
+    title: '实验室名称',
+    dataIndex: 'labName',
+    key: 'labName',
+    width: 150
   },
   {
-    title: '实验室名称',
-    dataIndex: 'name',
-    key: 'name',
-    width: 150
+    title: '房间号',
+    dataIndex: 'labNumber',
+    key: 'labNumber',
+    width: 120
   },
   {
     title: '位置',
@@ -233,48 +243,56 @@ const columns = [
     width: 120
   },
   {
-    title: '类型',
-    dataIndex: 'type',
-    key: 'type',
+    title: '容量',
+    dataIndex: 'capacity',
+    key: 'capacity',
     width: 100
   },
   {
-    title: '容量',
-    key: 'capacity',
-    width: 120
+    title: '面积',
+    dataIndex: 'area',
+    key: 'area',
+    width: 100
   },
   {
-    title: '设备',
-    key: 'equipment',
-    width: 200
+    title: '设备数量',
+    dataIndex: 'equipmentCount',
+    key: 'equipmentCount',
+    width: 100
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    key: 'status',
+    width: 80
   },
   {
     title: '操作',
     key: 'action',
-    width: 200
+    width: 250
   }
 ]
 
 // 表单数据
 const formData = reactive({
-  name: '',
-  code: '',
+  id: null,
+  labName: '',
+  labNumber: '',
   location: '',
   capacity: 30,
-  type: '',
-  equipment: [],
-  equipmentCounts: {},
-  description: '',
-  image: ''
+  area: null,
+  equipmentCount: 0,
+  colleges: [],
+  status: 1,
+  description: ''
 })
 
 // 表单验证规则
 const formRules = {
-  name: [{ required: true, message: '请输入实验室名称' }],
-  code: [{ required: true, message: '请输入实验室编号' }],
+  labName: [{ required: true, message: '请输入实验室名称' }],
+  labNumber: [{ required: true, message: '请输入房间号' }],
   location: [{ required: true, message: '请输入位置' }],
-  capacity: [{ required: true, message: '请输入容量' }],
-  type: [{ required: true, message: '请选择类型' }]
+  capacity: [{ required: true, message: '请输入容量' }]
 }
 
 // 筛选后的实验室数据
@@ -282,7 +300,9 @@ const filteredLaboratories = computed(() => {
   let result = laboratories.value
 
   if (searchForm.name) {
-    result = result.filter((lab) => lab.name.toLowerCase().includes(searchForm.name.toLowerCase()))
+    result = result.filter((lab) =>
+      lab.labName?.toLowerCase().includes(searchForm.name.toLowerCase())
+    )
   }
 
   if (searchForm.type) {
@@ -292,23 +312,95 @@ const filteredLaboratories = computed(() => {
   return result
 })
 
+// 加载学院数据
+const loadColleges = async () => {
+  const response = await getAllCollegesService()
+  if (response.code === 0 && response.data) {
+    collegeOptions.value = response.data || []
+  }
+}
+
 // 加载实验室数据
 const loadLaboratories = async () => {
   loading.value = true
-  try {
-    const response = await mockApi.getLaboratories()
-    laboratories.value = response.data.map((lab) => ({
-      ...lab,
-      type: lab.name.includes('化学') ? 'chemistry' : lab.name.includes('物理') ? 'physics' : lab.name.includes('生物') ? 'biology' : 'computer',
-      currentUsers: Math.floor(Math.random() * lab.capacity),
-      image: ''
-    }))
-    pagination.total = laboratories.value.length
-  } catch (error) {
-    message.error('加载实验室数据失败')
-  } finally {
-    loading.value = false
+  const response = await getLaboratoryListService(pagination.current, pagination.pageSize)
+  if (response.code === 0 && response.data) {
+    laboratories.value = response.data.items || []
+    pagination.total = response.data.total || 0
   }
+  loading.value = false
+}
+
+// 加载设备列表（不分页，可按名称模糊搜索）
+const loadEquipmentList = async () => {
+  const response = await listAllEquipmentService(equipmentSearchName.value || undefined)
+  if (response.code === 0 && response.data) {
+    equipmentList.value = response.data || []
+  }
+}
+
+// 重置已选设备数量
+const resetSelectedEquipment = () => {
+  Object.keys(selectedEquipment).forEach((k) => delete selectedEquipment[k])
+  selectedEquipmentIds.value = []
+}
+
+// 根据 selectedEquipment 自动计算设备总数
+const updateEquipmentCount = () => {
+  let total = 0
+  Object.values(selectedEquipment).forEach((val) => {
+    const num = Number(val)
+    if (!Number.isNaN(num) && num > 0) {
+      total += num
+    }
+  })
+  formData.equipmentCount = total
+}
+
+// 选择设备数量
+const onSelectEquipmentCount = (record, value) => {
+  const v = Number(value) || 0
+  const equip = getEquipmentById(record.id)
+  const max = equip && typeof equip.availableQuantity === 'number'
+    ? equip.availableQuantity
+    : Infinity
+
+  if (v > max) {
+    message.warning('选择数量不能超过可用数量')
+    if (max === Infinity || max <= 0) {
+      delete selectedEquipment[record.id]
+    } else {
+      selectedEquipment[record.id] = max
+    }
+    updateEquipmentCount()
+    return
+  }
+
+  if (v <= 0) {
+    delete selectedEquipment[record.id]
+  } else {
+    selectedEquipment[record.id] = v
+  }
+  updateEquipmentCount()
+}
+
+// 下拉选项：设备名称 / 型号 / 厂商 / 可用数量
+const equipmentSelectOptions = computed(() =>
+  (equipmentList.value || []).map((e) => ({
+    label: `${e.equipmentName} / ${e.model || ''} / ${e.manufacturer || ''}（可用：${e.availableQuantity}）`,
+    value: e.id
+  }))
+)
+
+// 根据 ID 获取设备对象
+const getEquipmentById = (id) => {
+  return (equipmentList.value || []).find((e) => e.id === id) || null
+}
+
+// 下拉实时搜索
+const handleEquipmentSearch = (value) => {
+  equipmentSearchName.value = value
+  loadEquipmentList()
 }
 
 // 搜索
@@ -329,55 +421,114 @@ const handleReset = () => {
 const handleTableChange = (pag) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
+  loadLaboratories()
 }
 
 // 显示添加模态框
 const showAddModal = () => {
   isEdit.value = false
   modalVisible.value = true
-  fileList.value = []
+  resetSelectedEquipment()
+  equipmentSearchName.value = ''
+  equipmentList.value = []
   Object.assign(formData, {
-    name: '',
-    code: '',
+    id: null,
+    labName: '',
+    labNumber: '',
     location: '',
     capacity: 30,
-    type: '',
-    status: 'available',
-    equipment: [],
-    equipmentCounts: {},
-    description: '',
-    image: ''
+    area: null,
+    equipmentCount: 0,
+    colleges: [],
+    status: 1,
+    description: ''
   })
 }
 
 // 编辑实验室
-const handleEdit = (record) => {
+const handleEdit = async (record) => {
   isEdit.value = true
   modalVisible.value = true
-  // 兼容旧数据：若没有 equipmentCounts，基于 equipment 生成计数
-  const counts =
-    record.equipmentCounts && Object.keys(record.equipmentCounts).length
-      ? { ...record.equipmentCounts }
-      : (() => {
-          const map = new Map()
-          ;(Array.isArray(record.equipment) ? record.equipment : []).forEach((name) => {
-            map.set(name, (map.get(name) || 0) + 1)
-          })
-          return Object.fromEntries(map.entries())
-        })()
-  Object.assign(formData, {
-    ...record,
-    equipment: Array.isArray(record.equipment) ? record.equipment : [],
-    equipmentCounts: counts
-  })
-  fileList.value = record.image ? [{ url: record.image }] : []
+
+  const response = await getLaboratoryByIdService(record.id)
+  if (response.code === 0 && response.data) {
+    const data = response.data
+    let collegesRaw = data.colleges
+    let collegesArray = []
+
+    if (typeof collegesRaw === 'string' && collegesRaw) {
+      collegesArray = JSON.parse(collegesRaw)
+    } else if (Array.isArray(collegesRaw)) {
+      collegesArray = collegesRaw
+    }
+
+    // 解析学院
+    Object.assign(formData, {
+      id: data.id,
+      labName: data.labName || '',
+      labNumber: data.labNumber || '',
+      location: data.location || '',
+      capacity: data.capacity || 30,
+      area: data.area || null,
+      equipmentCount: data.equipmentCount || 0,
+      // 表单中使用学院 ID 数组
+      colleges: Array.isArray(collegesArray) ? collegesArray.map((c) => (typeof c === 'object' ? c.id : c)) : [],
+      status: data.status !== undefined ? data.status : 1,
+      description: data.description || ''
+    })
+
+    // 解析设备列表，恢复已选设备数量
+    resetSelectedEquipment()
+    let equipmentListRaw = data.equipmentList
+    if (typeof equipmentListRaw === 'string' && equipmentListRaw) {
+      const arr = JSON.parse(equipmentListRaw)
+      if (Array.isArray(arr)) {
+        arr.forEach((item) => {
+          if (item && item.id != null && item.count != null) {
+            selectedEquipment[item.id] = item.count
+          }
+        })
+      }
+    }
+
+    // 加载所有设备，用于反查已有设备的完整信息（名称/型号/厂商/可用数等）
+    const eqRes = await listAllEquipmentService()
+    if (eqRes.code === 0 && eqRes.data) {
+      equipmentList.value = eqRes.data || []
+    } else {
+      equipmentList.value = []
+    }
+
+    // 根据已选设备 ID 初始化下拉多选的值
+    selectedEquipmentIds.value = Object.keys(selectedEquipment).map((id) => Number(id))
+    updateEquipmentCount()
+
+    // 不自动搜索关键字，等待用户输入；但下拉会根据已选 ID 正确显示标签
+    equipmentSearchName.value = ''
+  }
 }
 
 // 切换状态
-const handleToggleStatus = (record) => {
-  const newStatus = record.status === 'available' ? 'closed' : 'available'
-  record.status = newStatus
-  message.success(`实验室 ${record.name} 已${newStatus === 'available' ? '启用' : '关闭'}`)
+const handleToggleStatus = async (record) => {
+  const newStatus = record.status === 1 ? 0 : 1
+  const updateData = {
+    ...record,
+    status: newStatus
+  }
+  const response = await updateLaboratoryService(updateData)
+  if (response.code === 0) {
+    message.success(`实验室 ${record.labName} 已${newStatus === 1 ? '启用' : '禁用'}`)
+    loadLaboratories()
+  }
+}
+
+// 删除实验室
+const handleDelete = async (record) => {
+  const response = await deleteLaboratoryService(record.id)
+  if (response.code === 0) {
+    message.success('实验室删除成功')
+    loadLaboratories()
+  }
 }
 
 // 下载模板
@@ -390,86 +541,63 @@ const downloadTemplate = () => {
 const handleBatchImport = () => {
   message.info('批量导入功能')
 }
-
-// 显示分类模态框
-const showCategoryModal = () => {
-  categoryModalVisible.value = true
-  Object.assign(categoryFormData, {
-    name: ''
-  })
-}
-
-// 分类模态框确认
-const handleCategoryOk = async () => {
-  try {
-    await categoryFormRef.value.validate()
-    message.success('分类添加成功')
-    categoryModalVisible.value = false
-  } catch (error) {
-    console.error('表单验证失败:', error)
-  }
-}
-
-// 分类模态框取消
-const handleCategoryCancel = () => {
-  categoryModalVisible.value = false
-  categoryFormRef.value?.resetFields()
-}
-
-// 上传前处理
-const beforeUpload = (file) => {
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
-  if (!isJpgOrPng) {
-    message.error('只能上传 JPG/PNG 格式的图片!')
-    return false
-  }
-  const isLt2M = file.size / 1024 / 1024 < 2
-  if (!isLt2M) {
-    message.error('图片大小不能超过 2MB!')
-    return false
-  }
-  return false // 阻止自动上传
-}
-
-// 预览图片
-const handlePreview = (file) => {
-  previewImage.value = file.url || file.thumbUrl
-  previewVisible.value = true
-}
-
 // 模态框确认
 const handleModalOk = async () => {
-  try {
-    await formRef.value.validate()
+  await formRef.value.validate()
 
-    if (isEdit.value) {
-      // 编辑实验室
-      const index = laboratories.value.findIndex((lab) => lab.id === formData.id)
-      if (index > -1) {
-        Object.assign(laboratories.value[index], {
-          ...formData,
-          equipment: [...formData.equipment],
-          equipmentCounts: { ...formData.equipmentCounts }
-        })
-        message.success('实验室更新成功')
+  // 将学院 ID 数组转换为包含 id/name 的对象数组，并序列化为 JSON 字符串
+  const collegesObjects = Array.isArray(formData.colleges)
+    ? formData.colleges.map((id) => {
+      const found = collegeOptions.value.find((c) => c.id === id)
+      if (found) {
+        return {
+          id: found.id,
+          name: found.collegeName
+        }
       }
-    } else {
-      // 添加实验室
-      const newLab = {
-        ...formData,
-        id: Date.now(),
-        currentUsers: 0,
-        image: fileList.value[0]?.url || '',
-        equipment: [...formData.equipment],
-        equipmentCounts: { ...formData.equipmentCounts }
-      }
-      laboratories.value.unshift(newLab)
-      message.success('实验室添加成功')
+      return { id }
+    })
+    : []
+
+  // 生成设备列表对象（与设备表字段保持一致）
+  const equipmentObjects = []
+  const list = equipmentList.value || []
+  Object.entries(selectedEquipment).forEach(([idStr, count]) => {
+    const id = Number(idStr)
+    const num = Number(count)
+    if (!num || num <= 0) {
+      return
     }
+    const found = list.find((e) => e.id === id)
+    if (found) {
+      equipmentObjects.push({
+        id: found.id,
+        equipmentName: found.equipmentName,
+        model: found.model || '',
+        manufacturer: found.manufacturer || '',
+        availableQuantity: found.availableQuantity,
+        count: num
+      })
+    } else {
+      equipmentObjects.push({ id, count: num })
+    }
+  })
 
+  const submitData = {
+    ...formData,
+    // 后端期望 JSON 字符串，这里序列化为包含 id/name 的对象数组
+    colleges: collegesObjects.length > 0 ? JSON.stringify(collegesObjects) : '[]',
+    equipmentList: equipmentObjects.length > 0 ? JSON.stringify(equipmentObjects) : ''
+  }
+
+  const response = isEdit.value
+    ? await updateLaboratoryService(submitData)
+    : await createLaboratoryService(submitData)
+
+  if (response.code === 0) {
+    message.success(isEdit.value ? '实验室更新成功' : '实验室添加成功')
     modalVisible.value = false
-  } catch (error) {
-    console.error('表单验证失败:', error)
+    loadLaboratories()
   }
 }
 
@@ -477,42 +605,13 @@ const handleModalOk = async () => {
 const handleModalCancel = () => {
   modalVisible.value = false
   formRef.value?.resetFields()
-  fileList.value = []
 }
 
 onMounted(() => {
+  loadColleges()
   loadLaboratories()
 })
 
-// 选中设备变化时，自动维护数量（新增默认 1，移除同步删除）
-watch(
-  () => formData.equipment,
-  (newList) => {
-    // 添加默认数量
-    for (const name of newList) {
-      if (!(name in formData.equipmentCounts)) formData.equipmentCounts[name] = 1
-    }
-    // 延迟清理未选中的键，避免与控件更新时机冲突
-    nextTick(() => {
-      Object.keys(formData.equipmentCounts).forEach((k) => {
-        if (!newList.includes(k)) delete formData.equipmentCounts[k]
-      })
-    })
-  },
-  { deep: true }
-)
-
-// 将设备数组或计数对象转换为带数量的列表
-const getEquipmentListWithCounts = (equipment, equipmentCounts) => {
-  if (equipmentCounts && Object.keys(equipmentCounts).length > 0) {
-    return Object.entries(equipmentCounts).map(([name, count]) => ({ name, count }))
-  }
-  const map = new Map()
-  ;(Array.isArray(equipment) ? equipment : []).forEach((name) => {
-    map.set(name, (map.get(name) || 0) + 1)
-  })
-  return Array.from(map.entries()).map(([name, count]) => ({ name, count }))
-}
 </script>
 
 <style scoped>
@@ -533,6 +632,7 @@ const getEquipmentListWithCounts = (equipment, equipmentCounts) => {
   background-color: #fafafa;
   border-radius: 6px;
 }
+
 .search-input {
   width: 240px;
 }

@@ -59,6 +59,26 @@ export const routes = [
     ]
   },
   {
+    path: '/college-management',
+    name: 'CollegeManagement',
+    component: () => import('@/layouts/index.vue'),
+    meta: {
+      title: '学院管理',
+      icon: 'bank-outlined'
+    },
+    children: [
+      {
+        path: '/college-management/list',
+        name: 'CollegeList',
+        component: () => import('@/views/college-management/index.vue'),
+        meta: {
+          title: '学院列表',
+          icon: 'bank-outlined'
+        }
+      }
+    ]
+  },
+  {
     path: '/laboratory-management',
     name: 'LaboratoryManagement',
     component: () => import('@/layouts/index.vue'),
@@ -141,7 +161,8 @@ export const routes = [
         component: () => import('@/views/announcements/publish/index.vue'),
         meta: {
           title: '发布公告',
-          icon: 'edit-outlined'
+          icon: 'edit-outlined',
+          hidden: true
         }
       },
       {
@@ -149,8 +170,27 @@ export const routes = [
         name: 'AnnouncementList',
         component: () => import('@/views/announcements/list/index.vue'),
         meta: {
+          title: '协议列表',
+          icon: 'unordered-list-outlined'
+        }
+      },
+      {
+        path: '/notice/list',
+        name: 'NoticeList',
+        component: () => import('@/views/announcements/notice/index.vue'),
+        meta: {
           title: '公告列表',
           icon: 'unordered-list-outlined'
+        }
+      },
+      {
+        path: '/notice/publish/:id?',
+        name: 'PublishNotice',
+        component: () => import('@/views/announcements/notice/publish/index.vue'),
+        meta: {
+          title: '发布公告',
+          icon: 'edit-outlined',
+          hidden: true
         }
       }
     ]
@@ -164,15 +204,6 @@ export const routes = [
       icon: 'file-text-outlined'
     },
     children: [
-      {
-        path: '/process-management/protocols',
-        name: 'ProtocolManagement',
-        component: () => import('@/views/process-management/protocols/index.vue'),
-        meta: {
-          title: '协议管理',
-          icon: 'file-protect-outlined'
-        }
-      },
       {
         path: '/process-management/schedule',
         name: 'ScheduleManagement',
