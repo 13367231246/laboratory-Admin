@@ -61,6 +61,9 @@
                             </a-tag>
                         </a-space>
                     </template>
+                    <template v-else-if="column.key === 'laboratoryNames'">
+                        {{ record.laboratoryIds === 'all' ? '所有实验室' : (record.laboratoryNames || '-') }}
+                    </template>
                     <template v-else-if="column.key === 'weekdays'">
                         {{ renderWeekdays(record.weekdays) }}
                     </template>
