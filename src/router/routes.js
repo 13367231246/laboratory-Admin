@@ -200,17 +200,26 @@ export const routes = [
     name: 'ProcessManagement',
     component: () => import('@/layouts/index.vue'),
     meta: {
-      title: '流程管理',
+      title: '开放时间',
       icon: 'file-text-outlined'
     },
     children: [
       {
-        path: '/process-management/schedule',
-        name: 'ScheduleManagement',
-        component: () => import('@/views/process-management/schedule/index.vue'),
+        path: '/process-management/time-slot',
+        name: 'TimeSlotManagement',
+        component: () => import('@/views/process-management/time-slot/index.vue'),
         meta: {
-          title: '时间调整',
-          icon: 'clock-circle-outlined'
+          title: '时间段',
+          icon: 'schedule-outlined'
+        }
+      },
+      {
+        path: '/process-management/lab-schedule',
+        name: 'LabScheduleManagement',
+        component: () => import('@/views/process-management/lab-schedule/index.vue'),
+        meta: {
+          title: '开放时间配置',
+          icon: 'calendar-outlined'
         }
       }
     ]

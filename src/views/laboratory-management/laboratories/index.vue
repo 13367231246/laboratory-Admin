@@ -376,11 +376,8 @@ const onSelectEquipmentCount = (record, value) => {
     return
   }
 
-  if (v <= 0) {
-    delete selectedEquipment[record.id]
-  } else {
-    selectedEquipment[record.id] = v
-  }
+  // 数量可以为 0，表示该设备仍存在但数量为 0
+  selectedEquipment[record.id] = v
   updateEquipmentCount()
 }
 
@@ -565,9 +562,6 @@ const handleModalOk = async () => {
   Object.entries(selectedEquipment).forEach(([idStr, count]) => {
     const id = Number(idStr)
     const num = Number(count)
-    if (!num || num <= 0) {
-      return
-    }
     const found = list.find((e) => e.id === id)
     if (found) {
       equipmentObjects.push({
@@ -587,7 +581,7 @@ const handleModalOk = async () => {
     ...formData,
     // 后端期望 JSON 字符串，这里序列化为包含 id/name 的对象数组
     colleges: collegesObjects.length > 0 ? JSON.stringify(collegesObjects) : '[]',
-    equipmentList: equipmentObjects.length > 0 ? JSON.stringify(equipmentObjects) : ''
+    equipmentList: equipmentObjects.length > 0 ? JSON.stringify(equipmentObjects) : '[]'
   }
 
   const response = isEdit.value

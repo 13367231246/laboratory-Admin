@@ -62,6 +62,7 @@ declare module 'vue' {
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
     ATimeline: typeof import('ant-design-vue/es')['Timeline']
     ATimelineItem: typeof import('ant-design-vue/es')['TimelineItem']
+    ATimePicker: typeof import('ant-design-vue/es')['TimePicker']
     AUpload: typeof import('ant-design-vue/es')['Upload']
     AUploadDragger: typeof import('ant-design-vue/es')['UploadDragger']
     MarkdownEditor: typeof import('./components/MarkdownEditor/index.vue')['default']
