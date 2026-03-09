@@ -17,13 +17,6 @@
                     </template>
                 </a-input>
 
-                <a-select v-model:value="searchForm.ruleType" placeholder="规则类型" allow-clear @change="handleSearch"
-                    class="search-input">
-                    <a-select-option value="semester">学期时间</a-select-option>
-                    <a-select-option value="holiday">节假日</a-select-option>
-                    <a-select-option value="regular">常规时间</a-select-option>
-                </a-select>
-
                 <a-select v-model:value="searchForm.status" placeholder="状态" allow-clear @change="handleSearch"
                     class="search-input">
                     <a-select-option :value="1">启用</a-select-option>
@@ -397,10 +390,6 @@ const filteredList = computed(() => {
         result = result.filter((item) =>
             item.ruleName?.toLowerCase().includes(keyword)
         )
-    }
-
-    if (searchForm.ruleType) {
-        result = result.filter((item) => item.ruleType === searchForm.ruleType)
     }
 
     if (searchForm.status !== undefined && searchForm.status !== null && searchForm.status !== '') {
