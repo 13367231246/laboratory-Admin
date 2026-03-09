@@ -131,17 +131,8 @@ export const routes = [
         name: 'LabMaintenance',
         component: () => import('@/views/maintenance/lab-maintenance/index.vue'),
         meta: {
-          title: '实验室维护',
+          title: '维护列表',
           icon: 'home-outlined'
-        }
-      },
-      {
-        path: '/maintenance/equipment-maintenance',
-        name: 'EquipmentMaintenance',
-        component: () => import('@/views/maintenance/equipment-maintenance/index.vue'),
-        meta: {
-          title: '设备维护',
-          icon: 'tool-outlined'
         }
       }
     ]

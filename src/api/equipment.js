@@ -39,3 +39,7 @@ export const listAllEquipmentService = (equipmentName) => {
   })
 }
 
+// 根据实验室ID获取设备列表
+export const getEquipmentByLaboratoryIdService = (laboratoryId) => {
+  return request.get(`/laboratory/${laboratoryId}/equipment`)
+}

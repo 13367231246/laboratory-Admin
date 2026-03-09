@@ -1,6 +1,6 @@
 <template>
   <div class="lab-maintenance-container">
-    <a-card title="实验室维护" class="page-card">
+    <a-card title="维护列表" class="page-card">
       <template #extra>
         <a-space>
           <a-button type="primary" @click="showAddModal">
@@ -14,7 +14,7 @@
       <a-row :gutter="16" style="margin-bottom: 24px">
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic title="待维护" :value="maintenanceStats.pending" :value-style="{ color: '#faad14' }">
+            <a-statistic title="待维护" :value="maintenanceStats.waiting" :value-style="{ color: '#faad14' }">
               <template #prefix>
                 <clock-circle-outlined />
               </template>
@@ -23,7 +23,7 @@
         </a-col>
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic title="进行中" :value="maintenanceStats.inProgress" :value-style="{ color: '#1890ff' }">
+            <a-statistic title="进行中" :value="maintenanceStats.repairing" :value-style="{ color: '#1890ff' }">
               <template #prefix>
                 <loading-outlined />
               </template>
@@ -41,7 +41,7 @@
         </a-col>
         <a-col :span="6">
           <a-card class="stat-card">
-            <a-statistic title="超期" :value="maintenanceStats.overdue" :value-style="{ color: '#f5222d' }">
+            <a-statistic title="不需要维护" :value="maintenanceStats.noNeed" :value-style="{ color: '#8c8c8c' }">
               <template #prefix>
                 <exclamation-circle-outlined />
               </template>
@@ -52,24 +52,27 @@
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-input v-model:value="searchForm.title" placeholder="搜索维护任务" allow-clear @change="handleSearch" class="search-input">
+        <a-input v-model:value="searchForm.recordNo" placeholder="搜索维修单号" allow-clear @change="handleSearch"
+          class="search-input">
           <template #prefix>
             <search-outlined />
           </template>
         </a-input>
 
-        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
-          <a-select-option value="pending">待维护</a-select-option>
-          <a-select-option value="inProgress">进行中</a-select-option>
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch"
+          class="search-input">
+          <a-select-option value="waiting">待维护</a-select-option>
+          <a-select-option value="repairing">进行中</a-select-option>
           <a-select-option value="completed">已完成</a-select-option>
-          <a-select-option value="overdue">超期</a-select-option>
+          <a-select-option value="noNeed">不需要维护</a-select-option>
         </a-select>
 
-        <a-select v-model:value="searchForm.priority" placeholder="选择优先级" allow-clear @change="handleSearch" class="search-input">
-          <a-select-option value="low">低</a-select-option>
-          <a-select-option value="medium">中</a-select-option>
-          <a-select-option value="high">高</a-select-option>
-          <a-select-option value="urgent">紧急</a-select-option>
+        <a-select v-model:value="searchForm.issueType" placeholder="选择问题类型" allow-clear @change="handleSearch"
+          class="search-input">
+          <a-select-option value="clean">清洁</a-select-option>
+          <a-select-option value="repair">维修</a-select-option>
+          <a-select-option value="accident">事故</a-select-option>
+          <a-select-option value="other">其他</a-select-option>
         </a-select>
 
         <a-button type="primary" @click="handleSearch">
@@ -80,36 +83,35 @@
       </div>
 
       <!-- 维护任务列表 -->
-      <a-table :columns="columns" :data-source="filteredMaintenance" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
+      <a-table :columns="columns" :data-source="filteredMaintenance" :pagination="pagination" :loading="loading"
+        row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-tag :color="getStatusColor(record.status)">
               {{ getStatusText(record.status) }}
             </a-tag>
           </template>
-          <template v-else-if="column.key === 'type'">
-            <a-tag :color="getTypeColor(record.type)">
-              {{ getTypeText(record.type) }}
-            </a-tag>
-          </template>
-          <template v-else-if="column.key === 'priority'">
-            <a-tag :color="getPriorityColor(record.priority)">
-              {{ getPriorityText(record.priority) }}
+          <template v-else-if="column.key === 'issueType'">
+            <a-tag :color="getIssueTypeColor(record.issueType)">
+              {{ getIssueTypeText(record.issueType) }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'laboratory'">
             <a-tag color="blue">{{ getLaboratoryName(record.laboratoryId) }}</a-tag>
           </template>
-          <template v-else-if="column.key === 'progress'">
-            <a-progress :percent="record.progress" :show-info="false" size="small" />
-            <span style="margin-left: 8px">{{ record.progress }}%</span>
+          <template v-else-if="column.key === 'assignedTeacherId'">
+            {{ getTeacherLabel(record.assignedTeacherId) }}
+          </template>
+          <template v-else-if="column.key === 'createTime'">
+            {{ formatDateTime(record.createTime) }}
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
               <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
-              <a-button v-if="record.status === 'pending'" type="link" size="small" @click="handleStart(record)"> 开始 </a-button>
-              <a-button v-if="record.status === 'inProgress'" type="link" size="small" @click="handleComplete(record)"> 完成 </a-button>
-              <a-popconfirm title="确定要删除该维护任务吗？" @confirm="handleDelete(record)">
+              <a-button type="link" size="small" @click="showAssignTeacherModal(record)"> 指派教师 </a-button>
+              <a-button v-if="isInProgressStatus(record.status)" type="link" size="small"
+                @click="handleComplete(record)"> 完成 </a-button>
+              <a-popconfirm v-if="record.status === 2" title="确定要删除该维护任务吗？" @confirm="handleDelete(record)">
                 <a-button type="link" size="small" danger> 删除 </a-button>
               </a-popconfirm>
             </a-space>
@@ -119,30 +121,13 @@
     </a-card>
 
     <!-- 添加/编辑维护任务模态框 -->
-    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑维护任务' : '添加维护任务'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑维护任务' : '添加维护任务'" width="800px" @ok="handleModalOk"
+      @cancel="handleModalCancel">
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="任务标题" name="title">
-              <a-input v-model:value="formData.title" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="维护类型" name="type">
-              <a-select v-model:value="formData.type">
-                <a-select-option value="routine">常规维护</a-select-option>
-                <a-select-option value="cleaning">清洁保养</a-select-option>
-                <a-select-option value="inspection">安全检查</a-select-option>
-                <a-select-option value="repair">故障维修</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="关联实验室" name="laboratoryId">
-              <a-select v-model:value="formData.laboratoryId">
+            <a-form-item label="实验室" name="laboratoryId">
+              <a-select v-model:value="formData.laboratoryId" allow-clear placeholder="选择实验室（可选）">
                 <a-select-option v-for="lab in laboratories" :key="lab.id" :value="lab.id">
                   {{ lab.name }}
                 </a-select-option>
@@ -150,49 +135,46 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="优先级" name="priority">
-              <a-select v-model:value="formData.priority">
-                <a-select-option value="low">低</a-select-option>
-                <a-select-option value="medium">中</a-select-option>
-                <a-select-option value="high">高</a-select-option>
-                <a-select-option value="urgent">紧急</a-select-option>
+            <a-form-item label="设备" name="equipmentId">
+              <a-select v-model:value="formData.equipmentId" allow-clear placeholder="选择设备（可选）" show-search
+                :filter-option="filterEquipmentOption">
+                <a-select-option v-for="eq in equipmentOptions" :key="eq.id" :value="eq.id">
+                  {{ eq.label }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
         </a-row>
 
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="负责人" name="assignee">
-              <a-input v-model:value="formData.assignee" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="联系方式" name="contact">
-              <a-input v-model:value="formData.contact" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="计划开始时间" name="plannedStartDate">
-              <a-date-picker v-model:value="formData.plannedStartDate" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="计划完成时间" name="plannedEndDate">
-              <a-date-picker v-model:value="formData.plannedEndDate" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-form-item label="维护内容" name="description">
-          <a-textarea v-model:value="formData.description" placeholder="请详细描述维护内容" :rows="4" />
+        <a-form-item label="维护类型" name="issueType">
+          <a-radio-group v-model:value="formData.issueType">
+            <a-radio value="clean">清洁</a-radio>
+            <a-radio value="repair">维修</a-radio>
+            <a-radio value="accident">事故</a-radio>
+            <a-radio value="other">其他</a-radio>
+          </a-radio-group>
         </a-form-item>
 
-        <a-form-item label="备注" name="remark">
-          <a-textarea v-model:value="formData.remark" placeholder="请输入备注信息" :rows="2" />
+        <a-form-item label="问题描述" name="description">
+          <a-textarea v-model:value="formData.description" placeholder="请详细描述问题" :rows="4" />
+        </a-form-item>
+
+        <a-form-item label="图片" name="photos">
+          <a-textarea v-model:value="formData.photos" placeholder="可填写图片URL（多个用逗号分隔）" :rows="2" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <a-modal v-model:open="assignTeacherVisible" title="指派维修教师" @ok="handleAssignTeacherOk"
+      @cancel="handleAssignTeacherCancel">
+      <a-form layout="vertical">
+        <a-form-item label="选择教师" required>
+          <a-select v-model:value="assignTeacherId" placeholder="请选择教师" show-search
+            :filter-option="filterTeacherOption">
+            <a-select-option v-for="t in teacherOptions" :key="t.id" :value="t.id">
+              {{ t.label }}
+            </a-select-option>
+          </a-select>
         </a-form-item>
       </a-form>
     </a-modal>
@@ -200,22 +182,31 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import dayjs from 'dayjs'
-import { PlusOutlined, SearchOutlined, CalendarOutlined, ClockCircleOutlined, LoadingOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined, ClockCircleOutlined, LoadingOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue'
 import { mockApi } from '@/api/mockData'
+import { listTeachersService } from '@/api/usermanage'
+import { listAllMaintenanceRecordService, assignMaintenanceTeacherService, startMaintenanceRepairService, getMaintenanceSummaryService, applyMaintenanceService } from '@/api/maintenanceRecord'
+import { listAllEquipmentService, getEquipmentByLaboratoryIdService } from '@/api/equipment'
 
 const loading = ref(false)
 const modalVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 
+const assignTeacherVisible = ref(false)
+const assignTeacherId = ref(null)
+const assignRecordId = ref(null)
+const teacherOptions = ref([])
+
+const equipmentOptions = ref([])
+
 // 搜索表单
 const searchForm = reactive({
-  title: '',
+  recordNo: '',
   status: '',
-  priority: ''
+  issueType: ''
 })
 
 // 数据
@@ -229,29 +220,23 @@ const pagination = reactive({
 
 // 维护统计
 const maintenanceStats = reactive({
-  pending: 0,
-  inProgress: 0,
+  waiting: 0,
+  repairing: 0,
   completed: 0,
-  overdue: 0
+  noNeed: 0
 })
 
 // 表格列配置
 const columns = [
   {
-    title: '任务标题',
-    dataIndex: 'title',
-    key: 'title',
-    width: 200
+    title: '维修单号',
+    dataIndex: 'recordNo',
+    key: 'recordNo',
+    width: 160
   },
   {
-    title: '类型',
-    key: 'type',
-    width: 100
-  },
-  {
-    title: '优先级',
-    dataIndex: 'priority',
-    key: 'priority',
+    title: '问题类型',
+    key: 'issueType',
     width: 100
   },
   {
@@ -260,22 +245,20 @@ const columns = [
     width: 150
   },
   {
-    title: '负责人',
-    dataIndex: 'assignee',
-    key: 'assignee',
-    width: 120
+    title: '报修角色',
+    dataIndex: 'reporterRole',
+    key: 'reporterRole',
+    width: 100
   },
   {
-    title: '联系方式',
-    dataIndex: 'contact',
-    key: 'contact',
-    width: 120
+    title: '维修教师',
+    key: 'assignedTeacherId',
+    width: 160
   },
   {
-    title: '计划时间',
-    dataIndex: 'plannedStartDate',
-    key: 'plannedStartDate',
-    width: 150
+    title: '创建时间',
+    key: 'createTime',
+    width: 160
   },
   {
     title: '状态',
@@ -291,96 +274,107 @@ const columns = [
 
 // 表单数据
 const formData = reactive({
-  title: '',
-  type: '',
-  laboratoryId: '',
-  assignee: '',
-  contact: '',
-  priority: 'medium',
-  mobile: '',
-  plannedStartDate: null,
-  plannedEndDate: null,
+  laboratoryId: null,
+  equipmentId: null,
+  issueType: 'clean',
   description: '',
-  remark: ''
+  photos: ''
 })
 
 // 表单验证规则
 const formRules = {
-  title: [{ required: true, message: '请输入任务标题' }],
-  type: [{ required: true, message: '请选择维护类型' }],
-  laboratoryId: [{ required: true, message: '请选择关联实验室' }],
-  assignee: [{ required: true, message: '请输入负责人' }],
-  contact: [{ required: true, message: '请输入联系方式' }],
-  priority: [{ required: true, message: '请选择优先级' }],
-  mobile: [{ required: true, message: '请输入负责人手机号' }],
-  plannedStartDate: [{ required: true, message: '请选择计划开始时间' }],
-  plannedEndDate: [{ required: true, message: '请选择计划完成时间' }]
+  laboratoryId: [
+    {
+      validator: () => {
+        if (formData.laboratoryId || formData.equipmentId) return Promise.resolve()
+        return Promise.reject(new Error('实验室/设备请至少选择一项'))
+      },
+      trigger: 'change'
+    }
+  ],
+  equipmentId: [
+    {
+      validator: () => {
+        if (formData.laboratoryId || formData.equipmentId) return Promise.resolve()
+        return Promise.reject(new Error('实验室/设备请至少选择一项'))
+      },
+      trigger: 'change'
+    }
+  ],
+  issueType: [{ required: true, message: '请选择维护类型' }],
+  description: [{ required: true, message: '请输入问题描述' }]
 }
 
 // 获取状态颜色
 const getStatusColor = (status) => {
+  const normalized = normalizeStatus(status)
   const colors = {
-    pending: 'orange',
-    inProgress: 'blue',
+    waiting: 'orange',
+    repairing: 'blue',
     completed: 'green',
-    overdue: 'red'
+    noNeed: 'default'
   }
-  return colors[status] || 'default'
+  return colors[normalized] || 'default'
 }
 
 // 获取状态文本
 const getStatusText = (status) => {
+  const normalized = normalizeStatus(status)
   const texts = {
-    pending: '待维护',
-    inProgress: '进行中',
+    waiting: '待维护',
+    repairing: '进行中',
     completed: '已完成',
-    overdue: '超期'
+    noNeed: '不需要维护'
   }
-  return texts[status] || status
+  return texts[normalized] || status
+}
+
+function formatDateTime(val) {
+  if (!val) return '-'
+  const d = new Date(val)
+  return Number.isNaN(d.getTime()) ? val : d.toLocaleString('zh-CN', { dateStyle: 'short', timeStyle: 'short' })
+}
+
+function normalizeStatus(status) {
+  const map = {
+    0: 'waiting',
+    1: 'repairing',
+    2: 'completed',
+    3: 'noNeed'
+  }
+  return map[status] ?? status
+}
+
+function isInProgressStatus(status) {
+  const normalized = normalizeStatus(status)
+  return normalized === 'repairing'
+}
+
+const filterEquipmentOption = (input, option) => {
+  const text = option?.children?.toString?.() ?? ''
+  return text.toLowerCase().includes((input || '').toLowerCase())
 }
 
 // 获取类型颜色
-const getTypeColor = (type) => {
+const getIssueTypeColor = (type) => {
   const colors = {
-    routine: 'blue',
-    cleaning: 'green',
-    inspection: 'orange',
-    repair: 'red'
+    clean: 'green',
+    repair: 'red',
+    accident: 'orange',
+    other: 'blue'
   }
   return colors[type] || 'default'
 }
 
 // 获取类型文本
-const getTypeText = (type) => {
+const getIssueTypeText = (type) => {
   const texts = {
-    routine: '常规维护',
-    cleaning: '清洁保养',
-    inspection: '安全检查',
-    repair: '故障维修'
+    clean: '清洁',
+    repair: '维修',
+    accident: '事故',
+    other: '其他'
   }
   return texts[type] || type
-}
-
-// 获取优先级颜色
-const getPriorityColor = (priority) => {
-  const colors = {
-    low: 'green',
-    medium: 'blue',
-    high: 'orange',
-    urgent: 'red'
-  }
-  return colors[priority] || 'default'
-}
-
-// 获取优先级文本
-const getPriorityText = (priority) => {
-  const texts = {
-    low: '低',
-    medium: '中',
-    high: '高',
-    urgent: '紧急'
-  }
-  return texts[priority] || priority
 }
 
 // 获取实验室名称
@@ -393,16 +387,16 @@ const getLaboratoryName = (laboratoryId) => {
 const filteredMaintenance = computed(() => {
   let result = maintenance.value
 
-  if (searchForm.title) {
-    result = result.filter((item) => item.title.toLowerCase().includes(searchForm.title.toLowerCase()))
+  if (searchForm.recordNo) {
+    result = result.filter((item) => (item.recordNo || '').toLowerCase().includes(searchForm.recordNo.toLowerCase()))
   }
 
   if (searchForm.status) {
-    result = result.filter((item) => item.status === searchForm.status)
+    result = result.filter((item) => normalizeStatus(item.status) === searchForm.status)
   }
 
-  if (searchForm.priority) {
-    result = result.filter((item) => item.priority === searchForm.priority)
+  if (searchForm.issueType) {
+    result = result.filter((item) => item.issueType === searchForm.issueType)
   }
 
   return result
@@ -416,59 +410,14 @@ const loadData = async () => {
     const labsRes = await mockApi.getLaboratories()
     laboratories.value = labsRes.data
 
-    // 生成实验室维护任务数据
-    maintenance.value = [
-      {
-        id: 1,
-        title: '化学实验室A环境维护',
-        type: 'routine',
-        status: 'pending',
-        priority: 'medium',
-        assignee: '张师傅',
-        contact: '13812345678',
-        progress: 0,
-        mobile: '13100000001',
-        plannedStartDate: '2024-01-15',
-        plannedEndDate: '2024-01-16',
-        laboratoryId: 1,
-        description: '定期维护化学实验室环境',
-        remark: '注意安全防护'
-      },
-      {
-        id: 2,
-        title: '物理实验室B清洁保养',
-        type: 'cleaning',
-        status: 'inProgress',
-        priority: 'low',
-        assignee: '李师傅',
-        contact: '13987654321',
-        progress: 60,
-        plannedStartDate: '2024-01-10',
-        plannedEndDate: '2024-01-12',
-        laboratoryId: 2,
-        description: '清洁物理实验室设备',
-        remark: '需要更换清洁用品'
-      },
-      {
-        id: 3,
-        title: '生物实验室C安全检查',
-        type: 'inspection',
-        status: 'completed',
-        priority: 'high',
-        assignee: '王师傅',
-        contact: '13711223344',
-        progress: 100,
-        plannedStartDate: '2024-01-08',
-        plannedEndDate: '2024-01-08',
-        laboratoryId: 3,
-        description: '检查生物实验室安全设施',
-        remark: '已完成'
-      }
-    ]
+    const res = await listAllMaintenanceRecordService(pagination.current, pagination.pageSize)
+    if (res && res.code === 0 && res.data) {
+      const data = res.data
+      maintenance.value = data.items ?? data.list ?? []
+      pagination.total = data.total ?? 0
+    }
 
-    // 计算统计
-    updateStats()
-    pagination.total = maintenance.value.length
+    await refreshSummary()
   } catch (error) {
     message.error('加载数据失败')
   } finally {
@@ -476,12 +425,52 @@ const loadData = async () => {
   }
 }
 
-// 更新统计
-const updateStats = () => {
-  maintenanceStats.pending = maintenance.value.filter((item) => item.status === 'pending').length
-  maintenanceStats.inProgress = maintenance.value.filter((item) => item.status === 'inProgress').length
-  maintenanceStats.completed = maintenance.value.filter((item) => item.status === 'completed').length
-  maintenanceStats.overdue = maintenance.value.filter((item) => item.status === 'overdue').length
+const loadEquipmentOptions = async () => {
+  const res = await listAllEquipmentService('')
+  if (res && res.code === 0 && res.data) {
+    const list = res.data ?? []
+    equipmentOptions.value = list.map((eq) => {
+      const label = [eq.equipmentName, eq.assetNumber].filter(Boolean).join(' / ')
+      return { id: eq.id, label: label || String(eq.id) }
+    })
+  }
+}
+
+// 根据选择的实验室动态加载设备
+const loadEquipmentByLaboratory = async (laboratoryId) => {
+  if (!laboratoryId) {
+    // 如果没有选择实验室，清空设备选项
+    equipmentOptions.value = []
+    formData.equipmentId = null
+    return
+  }
+
+  try {
+    const res = await getEquipmentByLaboratoryIdService(laboratoryId)
+    if (res && res.code === 0 && res.data) {
+      const list = res.data ?? []
+      equipmentOptions.value = list.map((eq) => {
+        const label = [eq.equipmentName, eq.assetNumber].filter(Boolean).join(' / ')
+        return { id: eq.id, label: label || String(eq.id) }
+      })
+      // 清空已选择的设备，因为设备列表已更新
+      formData.equipmentId = null
+    }
+  } catch (error) {
+    message.error('加载设备列表失败')
+    equipmentOptions.value = []
+    formData.equipmentId = null
+  }
+}
+
+const refreshSummary = async () => {
+  const res = await getMaintenanceSummaryService()
+  if (res && res.code === 0 && res.data) {
+    maintenanceStats.waiting = res.data.waiting ?? 0
+    maintenanceStats.repairing = res.data.repairing ?? 0
+    maintenanceStats.completed = res.data.completed ?? 0
+    maintenanceStats.noNeed = res.data.noNeed ?? 0
+  }
 }
 
 // 搜索
@@ -492,9 +481,9 @@ const handleSearch = () => {
 // 重置搜索
 const handleReset = () => {
   Object.assign(searchForm, {
-    title: '',
+    recordNo: '',
     status: '',
-    priority: ''
+    issueType: ''
   })
   handleSearch()
 }
@@ -503,6 +492,7 @@ const handleReset = () => {
 const handleTableChange = (pag) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
+  loadData()
 }
 
 // 显示添加模态框
@@ -510,37 +500,27 @@ const showAddModal = () => {
   isEdit.value = false
   modalVisible.value = true
   Object.assign(formData, {
-    title: '',
-    type: '',
-    laboratoryId: '',
-    assignee: '',
-    contact: '',
-    priority: 'medium',
-    mobile: '',
-    plannedStartDate: null,
-    plannedEndDate: null,
+    laboratoryId: null,
+    equipmentId: null,
+    issueType: 'clean',
     description: '',
-    remark: ''
+    photos: ''
   })
 }
 
 // 编辑任务
 const handleEdit = (record) => {
-  isEdit.value = true
-  modalVisible.value = true
-  Object.assign(formData, {
-    ...record,
-    plannedStartDate: dayjs(record.plannedStartDate),
-    plannedEndDate: dayjs(record.plannedEndDate)
-  })
+  message.info('暂不支持编辑')
 }
 
 // 开始任务
 const handleStart = (record) => {
-  record.status = 'inProgress'
-  record.progress = 10
-  updateStats()
-  message.success('维护任务已开始')
+  startMaintenanceRepairService(record.id)
+    .then(() => {
+      message.success('维护任务已开始')
+      loadData()
+    })
+    .catch(() => { })
 }
 
 // 完成任务
@@ -560,38 +540,76 @@ const handleDelete = (record) => {
     message.success('维护任务删除成功')
   }
 }
+
+const filterTeacherOption = (input, option) => {
+  const text = option?.children?.toString?.() ?? ''
+  return text.toLowerCase().includes((input || '').toLowerCase())
+}
+
+const loadTeacherOptions = async () => {
+  const res = await listTeachersService(1, 1000)
+  if (res && res.code === 0 && res.data) {
+    const data = res.data
+    const list = data.items ?? data.list ?? []
+    teacherOptions.value = list.map((t) => {
+      const label = [t.realName, t.nickname, t.username].filter(Boolean).join(' / ')
+      return { id: t.id, label: label || String(t.id) }
+    })
+  }
+}
+
+const getTeacherLabel = (teacherId) => {
+  if (!teacherId) return '-'
+  const found = teacherOptions.value.find((t) => t.id === teacherId)
+  return found ? found.label : String(teacherId)
+}
+
+const showAssignTeacherModal = async (record) => {
+  assignRecordId.value = record.id
+  assignTeacherId.value = null
+  assignTeacherVisible.value = true
+  try {
+    await loadTeacherOptions()
+  } catch (e) {
+    message.error('加载教师列表失败')
+  }
+}
+
+const handleAssignTeacherOk = () => {
+  if (!assignRecordId.value) return
+  if (!assignTeacherId.value) {
+    message.warning('请选择教师')
+    return
+  }
+  assignMaintenanceTeacherService(assignRecordId.value, assignTeacherId.value)
+    .then(() => {
+      message.success('指派成功')
+      assignTeacherVisible.value = false
+      loadData()
+    })
+    .catch(() => { })
+}
+
+const handleAssignTeacherCancel = () => {
+  assignTeacherVisible.value = false
+}
 // 模态框确认
 const handleModalOk = async () => {
   try {
     await formRef.value.validate()
 
-    if (isEdit.value) {
-      // 编辑任务
-      const index = maintenance.value.findIndex((item) => item.id === formData.id)
-      if (index > -1) {
-        Object.assign(maintenance.value[index], {
-          ...formData,
-          plannedStartDate: formData.plannedStartDate ? formData.plannedStartDate.format('YYYY-MM-DD') : null,
-          plannedEndDate: formData.plannedEndDate ? formData.plannedEndDate.format('YYYY-MM-DD') : null
-        })
-        message.success('维护任务更新成功')
-      }
-    } else {
-      // 添加任务
-      const newTask = {
-        ...formData,
-        id: Date.now(),
-        status: 'pending',
-        progress: 0,
-        plannedStartDate: formData.plannedStartDate ? formData.plannedStartDate.format('YYYY-MM-DD') : null,
-        plannedEndDate: formData.plannedEndDate ? formData.plannedEndDate.format('YYYY-MM-DD') : null
-      }
-      maintenance.value.unshift(newTask)
-      updateStats()
-      message.success('维护任务添加成功')
+    const payload = {
+      laboratoryId: formData.laboratoryId || null,
+      equipmentId: formData.equipmentId || null,
+      issueType: formData.issueType,
+      description: formData.description,
+      photos: formData.photos || null
     }
 
+    await applyMaintenanceService(payload)
+    message.success('维护任务添加成功')
     modalVisible.value = false
+    loadData()
   } catch (error) {
     console.error('表单验证失败:', error)
   }
@@ -601,11 +619,24 @@ const handleModalOk = async () => {
 const handleModalCancel = () => {
   modalVisible.value = false
   formRef.value?.resetFields()
+  // 清空设备选项，避免影响下次打开
+  equipmentOptions.value = []
 }
 
 onMounted(() => {
   loadData()
+  loadTeacherOptions().catch(() => { })
+  // 初始不加载设备，等待用户选择实验室
 })
+
+// 监听实验室选择变化，动态加载设备
+watch(
+  () => formData.laboratoryId,
+  (newLaboratoryId) => {
+    loadEquipmentByLaboratory(newLaboratoryId)
+  },
+  { immediate: false }
+)
 </script>
 
 <style scoped>
@@ -632,6 +663,7 @@ onMounted(() => {
   background-color: #fafafa;
   border-radius: 6px;
 }
+
 .search-input {
   width: 240px;
 }

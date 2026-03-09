@@ -3,8 +3,7 @@
     <a-card title="申请列表" class="page-card">
       <a-tabs v-model:activeKey="activeTab">
         <a-tab-pane key="lab" tab="实验室申请">
-          <a-table :columns="labColumns" :data-source="labApplications" row-key="id" :loading="loading"
-            :pagination="pagination" @change="handleTableChange">
+          <a-table :columns="labColumns" :data-source="labApplications" row-key="id" :loading="loading" :pagination="pagination" @change="handleTableChange">
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'applicantRole'">
                 {{ record.applicantRole === 'teacher' ? '教师' : '学生' }}
@@ -41,7 +40,38 @@
           </a-table>
         </a-tab-pane>
         <a-tab-pane key="equipment" tab="设备申请">
-          <a-empty description="暂无设备申请接口" />
+          <a-table :columns="equipmentColumns" :data-source="equipmentApplications" row-key="id" :loading="equipmentLoading" :pagination="equipmentPagination" @change="handleEquipmentTableChange">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'status'">
+                <a-tag :color="getEquipmentStatusColor(record.status)">
+                  {{ getEquipmentStatusText(record.status) }}
+                </a-tag>
+              </template>
+              <template v-else-if="column.key === 'reviewComment'">
+                {{ record.reviewComment || '-' }}
+              </template>
+              <template v-else-if="column.key === 'createTime'">
+                {{ formatDateTime(record.createTime) }}
+              </template>
+              <template v-else-if="column.key === 'action'">
+                <a-space>
+                  <a-button type="link" size="small" @click="showEquipmentDetails(record)">详情</a-button>
+                  <template v-if="record.status === 0">
+                    <a-popconfirm title="确定通过此申请吗？" @confirm="handleEquipmentApprove(record)">
+                      <a-button type="link" size="small">通过</a-button>
+                    </a-popconfirm>
+                    <a-button type="link" size="small" danger @click="showEquipmentRejectModal(record)">拒绝</a-button>
+                  </template>
+                  <a-popconfirm title="确定删除此申请记录吗？" @confirm="handleEquipmentDelete(record)">
+                    <a-button type="link" size="small" danger>删除</a-button>
+                  </a-popconfirm>
+                </a-space>
+              </template>
+              <template v-else>
+                {{ record[column.dataIndex] ?? '-' }}
+              </template>
+            </template>
+          </a-table>
         </a-tab-pane>
       </a-tabs>
     </a-card>
@@ -51,8 +81,7 @@
         <a-descriptions-item label="实验室名称">{{ currentApplication.labName }}</a-descriptions-item>
         <a-descriptions-item label="房间号">{{ currentApplication.labNumber }}</a-descriptions-item>
         <a-descriptions-item label="位置">{{ currentApplication.location || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="申请人角色">{{ currentApplication.applicantRole === 'teacher' ? '教师' : '学生'
-        }}</a-descriptions-item>
+        <a-descriptions-item label="申请人角色">{{ currentApplication.applicantRole === 'teacher' ? '教师' : '学生' }}</a-descriptions-item>
         <a-descriptions-item label="使用目的">{{ currentApplication.purpose }}</a-descriptions-item>
         <a-descriptions-item label="课程名称">{{ currentApplication.courseName || '-' }}</a-descriptions-item>
         <a-descriptions-item label="班级名称">{{ currentApplication.className || '-' }}</a-descriptions-item>
@@ -60,8 +89,7 @@
         <a-descriptions-item label="开始时间">{{ formatDateTime(currentApplication.startTime) }}</a-descriptions-item>
         <a-descriptions-item label="结束时间">{{ formatDateTime(currentApplication.endTime) }}</a-descriptions-item>
         <a-descriptions-item label="状态">
-          <a-tag :color="getStatusColor(currentApplication.status)">{{ getStatusText(currentApplication.status)
-          }}</a-tag>
+          <a-tag :color="getStatusColor(currentApplication.status)">{{ getStatusText(currentApplication.status) }}</a-tag>
         </a-descriptions-item>
         <a-descriptions-item label="审核意见">{{ currentApplication.reviewComment || '-' }}</a-descriptions-item>
         <a-descriptions-item label="审核时间">{{ formatDateTime(currentApplication.reviewTime) }}</a-descriptions-item>
@@ -69,30 +97,63 @@
       </a-descriptions>
     </a-modal>
 
-    <a-modal v-model:open="rejectVisible" title="拒绝申请" @ok="handleReject"
-      :okButtonProps="{ disabled: !rejectReason.trim() }">
+    <a-modal v-model:open="equipmentDetailsVisible" title="申请详情" :footer="null" width="640">
+      <a-descriptions bordered :column="1">
+        <a-descriptions-item label="申请人">{{ currentEquipmentApplication.applicant || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="设备名称">{{ currentEquipmentApplication.equipmentName || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="数量">{{ currentEquipmentApplication.quantity ?? '-' }}</a-descriptions-item>
+        <a-descriptions-item label="使用类型">{{ currentEquipmentApplication.usageType || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="使用时间">{{ currentEquipmentApplication.usageTime || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="联系方式">{{ currentEquipmentApplication.contact || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="使用目的">{{ currentEquipmentApplication.purpose || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="特殊要求">{{ currentEquipmentApplication.specialRequirements || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="状态">
+          <a-tag :color="getEquipmentStatusColor(currentEquipmentApplication.status)">
+            {{ getEquipmentStatusText(currentEquipmentApplication.status) }}
+          </a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item label="审核意见">{{ currentEquipmentApplication.reviewComment || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="审核时间">{{ formatDateTime(currentEquipmentApplication.reviewTime) }}</a-descriptions-item>
+        <a-descriptions-item label="申请时间">{{ formatDateTime(currentEquipmentApplication.createTime) }}</a-descriptions-item>
+      </a-descriptions>
+    </a-modal>
+
+    <a-modal v-model:open="rejectVisible" title="拒绝申请" @ok="handleReject" :okButtonProps="{ disabled: !rejectReason.trim() }">
       <a-form-item label="审核意见" required>
         <a-textarea v-model:value="rejectReason" placeholder="请输入拒绝原因（必填）" :rows="4" />
+      </a-form-item>
+    </a-modal>
+
+    <a-modal v-model:open="equipmentRejectVisible" title="拒绝申请" @ok="handleEquipmentReject" :okButtonProps="{ disabled: !equipmentRejectReason.trim() }">
+      <a-form-item label="审核意见" required>
+        <a-textarea v-model:value="equipmentRejectReason" placeholder="请输入拒绝原因（必填）" :rows="4" />
       </a-form-item>
     </a-modal>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import {
-  listAllLabApplicationService,
-  approveLabApplicationService,
-  rejectLabApplicationService,
-  adminDeleteLabApplicationService
-} from '@/api/labApplication'
+import { listAllLabApplicationService, approveLabApplicationService, rejectLabApplicationService, adminDeleteLabApplicationService } from '@/api/labApplication'
+import { listAllEquipmentApplicationService, approveEquipmentApplicationService, rejectEquipmentApplicationService, adminDeleteEquipmentApplicationService } from '@/api/equipmentApplication'
 
 const activeTab = ref('lab')
 const loading = ref(false)
 const labApplications = ref([])
 
+const equipmentLoading = ref(false)
+const equipmentApplications = ref([])
+
 const pagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showSizeChanger: true,
+  pageSizeOptions: ['10', '20', '50', '100']
+})
+
+const equipmentPagination = reactive({
   current: 1,
   pageSize: 10,
   total: 0,
@@ -105,6 +166,11 @@ const rejectVisible = ref(false)
 const currentApplication = ref({})
 const rejectReason = ref('')
 
+const equipmentDetailsVisible = ref(false)
+const equipmentRejectVisible = ref(false)
+const currentEquipmentApplication = ref({})
+const equipmentRejectReason = ref('')
+
 const labColumns = [
   { title: '实验室', dataIndex: 'labName', key: 'labName' },
   { title: '房间号', dataIndex: 'labNumber', key: 'labNumber', width: 90 },
@@ -115,6 +181,17 @@ const labColumns = [
   { title: '人数', dataIndex: 'studentCount', key: 'studentCount', width: 70 },
   { title: '使用时间', key: 'timeRange', width: 180 },
   { title: '状态', key: 'status', width: 90 },
+  { title: '操作', key: 'action', width: 220, fixed: 'right' }
+]
+
+const equipmentColumns = [
+  { title: '申请人', dataIndex: 'applicant', key: 'applicant', width: 120 },
+  { title: '设备名称', dataIndex: 'equipmentName', key: 'equipmentName', width: 150 },
+  { title: '数量', dataIndex: 'quantity', key: 'quantity', width: 80 },
+  { title: '用途', dataIndex: 'purpose', key: 'purpose', ellipsis: true },
+  { title: '状态', key: 'status', width: 90 },
+  { title: '审核意见', key: 'reviewComment', width: 120, ellipsis: true },
+  { title: '申请时间', key: 'createTime', width: 160 },
   { title: '操作', key: 'action', width: 220, fixed: 'right' }
 ]
 
@@ -150,9 +227,25 @@ const fetchData = () => {
         pagination.total = data.total ?? 0
       }
     })
-    .catch(() => { })
+    .catch(() => {})
     .finally(() => {
       loading.value = false
+    })
+}
+
+const fetchEquipmentData = () => {
+  equipmentLoading.value = true
+  listAllEquipmentApplicationService(equipmentPagination.current, equipmentPagination.pageSize)
+    .then((res) => {
+      if (res && res.code === 0 && res.data) {
+        const data = res.data
+        equipmentApplications.value = data.items ?? data.list ?? []
+        equipmentPagination.total = data.total ?? 0
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      equipmentLoading.value = false
     })
 }
 
@@ -160,6 +253,12 @@ const handleTableChange = (pag) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
   fetchData()
+}
+
+const handleEquipmentTableChange = (pag) => {
+  equipmentPagination.current = pag.current
+  equipmentPagination.pageSize = pag.pageSize
+  fetchEquipmentData()
 }
 
 const showDetails = (record) => {
@@ -173,7 +272,7 @@ const handleApprove = (record) => {
       message.success('已通过')
       fetchData()
     })
-    .catch(() => { })
+    .catch(() => {})
 }
 
 const showRejectModal = (record) => {
@@ -195,7 +294,7 @@ const handleReject = () => {
       rejectVisible.value = false
       fetchData()
     })
-    .catch(() => { })
+    .catch(() => {})
 }
 
 const handleDelete = (record) => {
@@ -204,12 +303,76 @@ const handleDelete = (record) => {
       message.success('已删除')
       fetchData()
     })
-    .catch(() => { })
+    .catch(() => {})
+}
+
+const getEquipmentStatusColor = (status) => {
+  const map = { 0: 'orange', 1: 'green', 2: 'red' }
+  return map[status] ?? 'default'
+}
+
+const getEquipmentStatusText = (status) => {
+  const map = { 0: '待审核', 1: '已批准', 2: '已拒绝' }
+  return map[status] ?? '-'
+}
+
+const showEquipmentDetails = (record) => {
+  currentEquipmentApplication.value = { ...record }
+  equipmentDetailsVisible.value = true
+}
+
+const handleEquipmentApprove = (record) => {
+  approveEquipmentApplicationService(record.id)
+    .then(() => {
+      message.success('已通过')
+      fetchEquipmentData()
+    })
+    .catch(() => {})
+}
+
+const showEquipmentRejectModal = (record) => {
+  currentEquipmentApplication.value = record
+  equipmentRejectReason.value = ''
+  equipmentRejectVisible.value = true
+}
+
+const handleEquipmentReject = () => {
+  const id = currentEquipmentApplication.value.id
+  const comment = equipmentRejectReason.value.trim()
+  if (!comment) {
+    message.warning('请填写拒绝原因')
+    return
+  }
+  rejectEquipmentApplicationService(id, comment)
+    .then(() => {
+      message.success('已拒绝')
+      equipmentRejectVisible.value = false
+      fetchEquipmentData()
+    })
+    .catch(() => {})
+}
+
+const handleEquipmentDelete = (record) => {
+  adminDeleteEquipmentApplicationService(record.id)
+    .then(() => {
+      message.success('已删除')
+      fetchEquipmentData()
+    })
+    .catch(() => {})
 }
 
 onMounted(() => {
   fetchData()
 })
+
+watch(
+  () => activeTab.value,
+  (tab) => {
+    if (tab === 'equipment' && equipmentApplications.value.length === 0) {
+      fetchEquipmentData()
+    }
+  }
+)
 </script>
 
 <style scoped>
