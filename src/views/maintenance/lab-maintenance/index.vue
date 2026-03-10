@@ -52,23 +52,20 @@
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-input v-model:value="searchForm.recordNo" placeholder="搜索维修单号" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-input v-model:value="searchForm.recordNo" placeholder="搜索维修单号" allow-clear @change="handleSearch" class="search-input">
           <template #prefix>
             <search-outlined />
           </template>
         </a-input>
 
-        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
           <a-select-option value="waiting">待维护</a-select-option>
           <a-select-option value="repairing">进行中</a-select-option>
           <a-select-option value="completed">已完成</a-select-option>
           <a-select-option value="noNeed">不需要维护</a-select-option>
         </a-select>
 
-        <a-select v-model:value="searchForm.issueType" placeholder="选择问题类型" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-select v-model:value="searchForm.issueType" placeholder="选择问题类型" allow-clear @change="handleSearch" class="search-input">
           <a-select-option value="clean">清洁</a-select-option>
           <a-select-option value="repair">维修</a-select-option>
           <a-select-option value="accident">事故</a-select-option>
@@ -83,8 +80,7 @@
       </div>
 
       <!-- 维护任务列表 -->
-      <a-table :columns="columns" :data-source="filteredMaintenance" :pagination="pagination" :loading="loading"
-        row-key="id" @change="handleTableChange">
+      <a-table :columns="columns" :data-source="filteredMaintenance" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-tag :color="getStatusColor(record.status)">
@@ -107,11 +103,9 @@
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
               <a-button type="link" size="small" @click="showAssignTeacherModal(record)"> 指派教师 </a-button>
-              <a-button v-if="isInProgressStatus(record.status)" type="link" size="small"
-                @click="handleComplete(record)"> 完成 </a-button>
-              <a-popconfirm v-if="record.status === 2" title="确定要删除该维护任务吗？" @confirm="handleDelete(record)">
+              <a-button v-if="isInProgressStatus(record.status)" type="link" size="small" @click="handleComplete(record)"> 完成 </a-button>
+              <a-popconfirm title="确定要删除该维护任务吗？" @confirm="handleDelete(record)">
                 <a-button type="link" size="small" danger> 删除 </a-button>
               </a-popconfirm>
             </a-space>
@@ -121,8 +115,7 @@
     </a-card>
 
     <!-- 添加/编辑维护任务模态框 -->
-    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑维护任务' : '添加维护任务'" width="800px" @ok="handleModalOk"
-      @cancel="handleModalCancel">
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑维护任务' : '添加维护任务'" width="800px" @ok="handleModalOk" @cancel="handleModalCancel">
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
@@ -136,8 +129,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item label="设备" name="equipmentId">
-              <a-select v-model:value="formData.equipmentId" allow-clear placeholder="选择设备（可选）" show-search
-                :filter-option="filterEquipmentOption">
+              <a-select v-model:value="formData.equipmentId" allow-clear placeholder="选择设备（可选）" show-search :filter-option="filterEquipmentOption">
                 <a-select-option v-for="eq in equipmentOptions" :key="eq.id" :value="eq.id">
                   {{ eq.label }}
                 </a-select-option>
@@ -165,12 +157,10 @@
       </a-form>
     </a-modal>
 
-    <a-modal v-model:open="assignTeacherVisible" title="指派维修教师" @ok="handleAssignTeacherOk"
-      @cancel="handleAssignTeacherCancel">
+    <a-modal v-model:open="assignTeacherVisible" title="指派维修教师" @ok="handleAssignTeacherOk" @cancel="handleAssignTeacherCancel">
       <a-form layout="vertical">
         <a-form-item label="选择教师" required>
-          <a-select v-model:value="assignTeacherId" placeholder="请选择教师" show-search
-            :filter-option="filterTeacherOption">
+          <a-select v-model:value="assignTeacherId" placeholder="请选择教师" show-search :filter-option="filterTeacherOption">
             <a-select-option v-for="t in teacherOptions" :key="t.id" :value="t.id">
               {{ t.label }}
             </a-select-option>
@@ -187,7 +177,7 @@ import { message } from 'ant-design-vue'
 import { PlusOutlined, SearchOutlined, ClockCircleOutlined, LoadingOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue'
 import { mockApi } from '@/api/mockData'
 import { listTeachersService } from '@/api/usermanage'
-import { listAllMaintenanceRecordService, assignMaintenanceTeacherService, startMaintenanceRepairService, getMaintenanceSummaryService, applyMaintenanceService } from '@/api/maintenanceRecord'
+import { listAllMaintenanceRecordService, assignMaintenanceTeacherService, startMaintenanceRepairService, getMaintenanceSummaryService, applyMaintenanceService, deleteMaintenanceRecordService } from '@/api/maintenanceRecord'
 import { listAllEquipmentService, getEquipmentByLaboratoryIdService } from '@/api/equipment'
 
 const loading = ref(false)
@@ -520,7 +510,7 @@ const handleStart = (record) => {
       message.success('维护任务已开始')
       loadData()
     })
-    .catch(() => { })
+    .catch(() => {})
 }
 
 // 完成任务
@@ -532,12 +522,16 @@ const handleComplete = (record) => {
 }
 
 // 删除任务
-const handleDelete = (record) => {
-  const index = maintenance.value.findIndex((item) => item.id === record.id)
-  if (index > -1) {
-    maintenance.value.splice(index, 1)
-    updateStats()
-    message.success('维护任务删除成功')
+const handleDelete = async (record) => {
+  try {
+    const res = await deleteMaintenanceRecordService(record.id)
+    if (res && res.code === 0) {
+      message.success('维护任务删除成功')
+      loadData()
+      await refreshSummary()
+    }
+  } catch (error) {
+    message.error('删除失败')
   }
 }
 
@@ -587,7 +581,7 @@ const handleAssignTeacherOk = () => {
       assignTeacherVisible.value = false
       loadData()
     })
-    .catch(() => { })
+    .catch(() => {})
 }
 
 const handleAssignTeacherCancel = () => {
@@ -625,7 +619,7 @@ const handleModalCancel = () => {
 
 onMounted(() => {
   loadData()
-  loadTeacherOptions().catch(() => { })
+  loadTeacherOptions().catch(() => {})
   // 初始不加载设备，等待用户选择实验室
 })
 

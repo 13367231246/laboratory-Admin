@@ -69,7 +69,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { UserOutlined, HomeOutlined, CalendarOutlined, ToolOutlined } from '@ant-design/icons-vue'
-import { mockApi } from '@/api/mockData'
+import { getAdminSummaryService, getTodayApplicationsService, getRecentLaboratoriesService } from '@/api/admin'
 
 const statistics = ref([])
 const todayAppointments = ref([])
@@ -78,48 +78,60 @@ const laboratories = ref([])
 onMounted(async () => {
   try {
     // 获取统计数据
-    const statsRes = await mockApi.getStatistics()
-    statistics.value = [
-      {
-        title: '实验室总数',
-        value: statsRes.data.totalLaboratories,
-        icon: HomeOutlined,
-        color: '#1890ff'
-      },
-      {
-        title: '用户总数',
-        value: statsRes.data.totalUsers,
-        icon: UserOutlined,
-        color: '#52c41a'
-      },
-      {
-        title: '今日预约',
-        value: statsRes.data.todayAppointments,
-        icon: CalendarOutlined,
-        color: '#faad14'
-      },
-      {
-        title: '设备总数',
-        value: statsRes.data.totalEquipment,
-        icon: ToolOutlined,
-        color: '#f5222d'
-      }
-    ]
+    const statsRes = await getAdminSummaryService()
+    if (statsRes && statsRes.code === 0 && statsRes.data) {
+      const summary = statsRes.data
+      statistics.value = [
+        {
+          title: '实验室总数',
+          value: summary.totalLaboratories || 0,
+          icon: HomeOutlined,
+          color: '#1890ff'
+        },
+        {
+          title: '用户总数',
+          value: summary.totalUsers || 0,
+          icon: UserOutlined,
+          color: '#52c41a'
+        },
+        {
+          title: '今日预约',
+          value: summary.todayApplications || 0,
+          icon: CalendarOutlined,
+          color: '#faad14'
+        },
+        {
+          title: '设备种类',
+          value: summary.totalEquipment || 0,
+          icon: ToolOutlined,
+          color: '#f5222d'
+        }
+      ]
+    }
 
-    // 获取今日预约
-    const appointmentsRes = await mockApi.getAppointments()
-    const today = new Date().toISOString().split('T')[0]
-    todayAppointments.value = appointmentsRes.data.map((item) => ({
-      ...item,
-      laboratoryName: `实验室 ${item.laboratoryId}`,
-      time: `${item.startTime}-${item.endTime}`,
-      applicant: item.name,
-      contact: '138-xxxx-xxxx'
-    }))
+    // 获取今日申请
+    const applicationsRes = await getTodayApplicationsService()
+    if (applicationsRes && applicationsRes.code === 0 && applicationsRes.data) {
+      todayAppointments.value = applicationsRes.data.map((item) => ({
+        ...item,
+        laboratoryName: item.laboratoryName || `实验室 ${item.laboratoryId}`,
+        time: `${item.startTime || ''}-${item.endTime || ''}`,
+        applicant: item.applicant || item.applicantName || '未知申请人',
+        contact: item.contact || item.phone || '未提供联系方式'
+      }))
+    }
 
-    // 获取实验室列表
-    const labsRes = await mockApi.getLaboratories()
-    laboratories.value = labsRes.data.slice(0, 10) // 只显示前3个
+    // 获取最近实验室
+    const labsRes = await getRecentLaboratoriesService()
+    if (labsRes && labsRes.code === 0 && labsRes.data) {
+      laboratories.value = labsRes.data.map((lab) => ({
+        ...lab,
+        name: lab.name || lab.labName || '未命名实验室',
+        location: lab.location || lab.address || '未知位置',
+        capacity: lab.capacity || 0,
+        status: lab.status === 1 || lab.status === 'active' || lab.status === 'available' ? 'available' : 'maintenance'
+      }))
+    }
   } catch (error) {
     console.error('获取数据失败:', error)
   }

@@ -7,28 +7,18 @@
             <plus-outlined />
             添加实验室
           </a-button>
-          <a-button @click="downloadTemplate">
-            <download-outlined />
-            下载模板
-          </a-button>
-          <a-button @click="handleBatchImport">
-            <upload-outlined />
-            批量导入
-          </a-button>
         </a-space>
       </template>
 
       <!-- 搜索筛选 -->
       <div class="search-section">
-        <a-input v-model:value="searchForm.name" placeholder="搜索实验室名称" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-input v-model:value="searchForm.name" placeholder="搜索实验室名称" allow-clear @change="handleSearch" class="search-input">
           <template #prefix>
             <search-outlined />
           </template>
         </a-input>
 
-        <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch" class="search-input">
           <a-select-option value="chemistry">化学</a-select-option>
           <a-select-option value="physics">物理</a-select-option>
           <a-select-option value="biology">生物</a-select-option>
@@ -43,8 +33,7 @@
       </div>
 
       <!-- 实验室列表 -->
-      <a-table :columns="columns" :data-source="filteredLaboratories" :pagination="pagination" :loading="loading"
-        row-key="id" @change="handleTableChange">
+      <a-table :columns="columns" :data-source="filteredLaboratories" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-tag :color="record.status === 1 ? 'green' : 'red'">
@@ -54,8 +43,7 @@
           <template v-else-if="column.key === 'action'">
             <a-space>
               <a-button type="link" size="small" @click="handleEdit(record)">编辑</a-button>
-              <a-popconfirm :title="`确定要${record.status === 1 ? '禁用' : '启用'}该实验室吗？`"
-                @confirm="handleToggleStatus(record)">
+              <a-popconfirm :title="`确定要${record.status === 1 ? '禁用' : '启用'}该实验室吗？`" @confirm="handleToggleStatus(record)">
                 <a-button type="link" size="small" :danger="record.status === 1">
                   {{ record.status === 1 ? '禁用' : '启用' }}
                 </a-button>
@@ -70,8 +58,7 @@
     </a-card>
 
     <!-- 添加/编辑实验室模态框 -->
-    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑实验室' : '添加实验室'" width="900px" @ok="handleModalOk"
-      @cancel="handleModalCancel">
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑实验室' : '添加实验室'" width="900px" @ok="handleModalOk" @cancel="handleModalCancel">
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
@@ -136,9 +123,7 @@
         </a-form-item>
 
         <a-form-item label="设备列表">
-          <a-select v-model:value="selectedEquipmentIds" mode="multiple" show-search :filter-option="false"
-            :options="equipmentSelectOptions" placeholder="输入设备名称搜索并选择" @search="handleEquipmentSearch"
-            style="width: 100%" />
+          <a-select v-model:value="selectedEquipmentIds" mode="multiple" show-search :filter-option="false" :options="equipmentSelectOptions" placeholder="输入设备名称搜索并选择" @search="handleEquipmentSearch" style="width: 100%" />
 
           <div v-if="selectedEquipmentIds.length" class="selected-equipment-list">
             <div v-for="id in selectedEquipmentIds" :key="id" class="selected-equipment-item">
@@ -150,10 +135,7 @@
                 {{ getEquipmentById(id)?.manufacturer || '-' }}
                 （可用：{{ getEquipmentById(id)?.availableQuantity ?? '-' }}）
               </span>
-              <a-input-number :min="0" :max="getEquipmentById(id)?.availableQuantity || 9999"
-                :value="selectedEquipment[id] || 0"
-                @update:value="(val) => onSelectEquipmentCount(getEquipmentById(id) || { id }, val)"
-                style="width: 120px; margin-left: 8px" />
+              <a-input-number :min="0" :max="getEquipmentById(id)?.availableQuantity || 9999" :value="selectedEquipment[id] || 0" @update:value="(val) => onSelectEquipmentCount(getEquipmentById(id) || { id }, val)" style="width: 120px; margin-left: 8px" />
             </div>
           </div>
         </a-form-item>
@@ -171,13 +153,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { PlusOutlined, SearchOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons-vue'
-import {
-  getLaboratoryListService,
-  getLaboratoryByIdService,
-  createLaboratoryService,
-  updateLaboratoryService,
-  deleteLaboratoryService
-} from '@/api/laboratory'
+import { getLaboratoryListService, getLaboratoryByIdService, createLaboratoryService, updateLaboratoryService, deleteLaboratoryService } from '@/api/laboratory'
 import { getAllCollegesService } from '@/api/college'
 import { listAllEquipmentService } from '@/api/equipment'
 
@@ -300,9 +276,7 @@ const filteredLaboratories = computed(() => {
   let result = laboratories.value
 
   if (searchForm.name) {
-    result = result.filter((lab) =>
-      lab.labName?.toLowerCase().includes(searchForm.name.toLowerCase())
-    )
+    result = result.filter((lab) => lab.labName?.toLowerCase().includes(searchForm.name.toLowerCase()))
   }
 
   if (searchForm.type) {
@@ -361,9 +335,7 @@ const updateEquipmentCount = () => {
 const onSelectEquipmentCount = (record, value) => {
   const v = Number(value) || 0
   const equip = getEquipmentById(record.id)
-  const max = equip && typeof equip.availableQuantity === 'number'
-    ? equip.availableQuantity
-    : Infinity
+  const max = equip && typeof equip.availableQuantity === 'number' ? equip.availableQuantity : Infinity
 
   if (v > max) {
     message.warning('选择数量不能超过可用数量')
@@ -528,16 +500,6 @@ const handleDelete = async (record) => {
   }
 }
 
-// 下载模板
-const downloadTemplate = () => {
-  message.success('正在下载实验室导入模板.xlsx')
-  // 这里应该实现真实的下载逻辑
-}
-
-// 批量导入
-const handleBatchImport = () => {
-  message.info('批量导入功能')
-}
 // 模态框确认
 const handleModalOk = async () => {
   await formRef.value.validate()
@@ -545,15 +507,15 @@ const handleModalOk = async () => {
   // 将学院 ID 数组转换为包含 id/name 的对象数组，并序列化为 JSON 字符串
   const collegesObjects = Array.isArray(formData.colleges)
     ? formData.colleges.map((id) => {
-      const found = collegeOptions.value.find((c) => c.id === id)
-      if (found) {
-        return {
-          id: found.id,
-          name: found.collegeName
+        const found = collegeOptions.value.find((c) => c.id === id)
+        if (found) {
+          return {
+            id: found.id,
+            name: found.collegeName
+          }
         }
-      }
-      return { id }
-    })
+        return { id }
+      })
     : []
 
   // 生成设备列表对象（与设备表字段保持一致）
@@ -584,9 +546,7 @@ const handleModalOk = async () => {
     equipmentList: equipmentObjects.length > 0 ? JSON.stringify(equipmentObjects) : '[]'
   }
 
-  const response = isEdit.value
-    ? await updateLaboratoryService(submitData)
-    : await createLaboratoryService(submitData)
+  const response = isEdit.value ? await updateLaboratoryService(submitData) : await createLaboratoryService(submitData)
 
   if (response.code === 0) {
     message.success(isEdit.value ? '实验室更新成功' : '实验室添加成功')
@@ -605,7 +565,6 @@ onMounted(() => {
   loadColleges()
   loadLaboratories()
 })
-
 </script>
 
 <style scoped>

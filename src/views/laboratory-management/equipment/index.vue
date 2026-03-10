@@ -7,14 +7,6 @@
             <plus-outlined />
             添加设备
           </a-button>
-          <a-button @click="downloadTemplate">
-            <download-outlined />
-            下载模板
-          </a-button>
-          <a-button @click="handleBatchImport">
-            <upload-outlined />
-            批量导入
-          </a-button>
         </a-space>
       </template>
 
@@ -492,17 +484,6 @@ const handleDelete = async (record) => {
       }
     }
   })
-}
-
-// 批量导入
-const handleBatchImport = () => {
-  message.info('批量导入功能')
-}
-
-// 下载模板
-const downloadTemplate = () => {
-  message.success('正在下载设备导入模板.xlsx')
-  // 这里应该实现真实的下载逻辑
 }
 // 模态框确认
 const handleModalOk = async () => {

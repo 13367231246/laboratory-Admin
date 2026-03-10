@@ -23,3 +23,7 @@ export const assignMaintenanceTeacherService = (id, teacherId) => {
 export const startMaintenanceRepairService = (id) => {
   return request.patch(`/maintenance/teacher/${id}/start`)
 }
+
+export const deleteMaintenanceRecordService = (id) => {
+  return request.delete(`/maintenance/admin/${id}`)
+}
