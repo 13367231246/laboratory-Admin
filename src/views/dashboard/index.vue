@@ -22,16 +22,16 @@
               <a-list-item>
                 <a-list-item-meta>
                   <template #title>
-                    <a>{{ item.laboratoryName }}</a>
+                    <a>{{ item.labName }}({{ item.labNumber }})</a>
                   </template>
                   <template #description>
-                    <p>申请人: {{ item.applicant }} | 联系方式: {{ item.contact }}</p>
-                    <p>{{ item.time }} - {{ item.purpose }}</p>
+                    <p>申请人: {{ item.applicantRealName }} | 联系方式: {{ item.applicantPhone }}</p>
+                    <p>申请时间：{{ item.createTime }}</p>
                   </template>
                 </a-list-item-meta>
                 <template #actions>
-                  <a-tag :color="item.status === 'confirmed' ? 'green' : 'orange'">
-                    {{ item.status === 'confirmed' ? '已通过' : '待审批' }}
+                  <a-tag :color="item.status === 1 ? 'green' : item.status === 2 ? 'red' : 'orange'">
+                    {{ item.status === 1 ? '已通过' : item.status === 2 ? '已拒绝' : '待审批' }}
                   </a-tag>
                 </template>
               </a-list-item>
@@ -112,13 +112,8 @@ onMounted(async () => {
     // 获取今日申请
     const applicationsRes = await getTodayApplicationsService()
     if (applicationsRes && applicationsRes.code === 0 && applicationsRes.data) {
-      todayAppointments.value = applicationsRes.data.map((item) => ({
-        ...item,
-        laboratoryName: item.laboratoryName || `实验室 ${item.laboratoryId}`,
-        time: `${item.startTime || ''}-${item.endTime || ''}`,
-        applicant: item.applicant || item.applicantName || '未知申请人',
-        contact: item.contact || item.phone || '未提供联系方式'
-      }))
+      todayAppointments.value = applicationsRes.data
+      console.log(todayAppointments.value)
     }
 
     // 获取最近实验室
