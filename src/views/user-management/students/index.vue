@@ -10,22 +10,13 @@
 
       <!-- 搜索和筛选 -->
       <div class="search-section">
-        <a-input v-model:value="searchForm.username" placeholder="搜索用户名" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-input v-model:value="searchForm.username" placeholder="搜索用户名" allow-clear @change="handleSearch" class="search-input">
           <template #prefix>
             <search-outlined />
           </template>
         </a-input>
 
-        <a-input v-model:value="searchForm.nickname" placeholder="搜索昵称" allow-clear @change="handleSearch"
-          class="search-input">
-          <template #prefix>
-            <search-outlined />
-          </template>
-        </a-input>
-
-        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
           <a-select-option :value="1">正常</a-select-option>
           <a-select-option :value="0">禁用</a-select-option>
         </a-select>
@@ -38,8 +29,7 @@
       </div>
 
       <!-- 学生列表 -->
-      <a-table :columns="columns" :data-source="filteredStudents" :pagination="pagination" :loading="loading"
-        row-key="id" @change="handleTableChange">
+      <a-table :columns="columns" :data-source="filteredStudents" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-tag :color="record.status === 1 ? 'green' : 'red'">
@@ -53,8 +43,7 @@
             <a-space>
               <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
               <a-button type="link" size="small" @click="handleResetPassword(record)"> 重置密码 </a-button>
-              <a-popconfirm :title="`确定要${record.status === 1 ? '禁用' : '启用'}该学生吗？`"
-                @confirm="handleToggleStatus(record)">
+              <a-popconfirm :title="`确定要${record.status === 1 ? '禁用' : '启用'}该学生吗？`" @confirm="handleToggleStatus(record)">
                 <a-button type="link" size="small" :danger="record.status === 1">
                   {{ record.status === 1 ? '禁用' : '启用' }}
                 </a-button>
@@ -69,14 +58,10 @@
     </a-card>
 
     <!-- 添加/编辑学生模态框 -->
-    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑学生' : '添加学生'" @ok="handleModalOk"
-      @cancel="handleModalCancel">
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑学生' : '添加学生'" @ok="handleModalOk" @cancel="handleModalCancel">
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-form-item label="用户名" name="username">
           <a-input v-model:value="formData.username" :disabled="isEdit" />
-        </a-form-item>
-        <a-form-item label="昵称" name="nickname">
-          <a-input v-model:value="formData.nickname" />
         </a-form-item>
         <a-form-item label="邮箱" name="email">
           <a-input v-model:value="formData.email" />
@@ -111,15 +96,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
-import {
-  listStudentsService,
-  addStudentService,
-  updateUserService,
-  resetPasswordService,
-  disableUserService,
-  enableUserService,
-  deleteUserService
-} from '@/api/usermanage'
+import { listStudentsService, addStudentService, updateUserService, resetPasswordService, disableUserService, enableUserService, deleteUserService } from '@/api/usermanage'
 
 const loading = ref(false)
 const modalVisible = ref(false)
@@ -129,7 +106,6 @@ const formRef = ref()
 // 搜索表单
 const searchForm = reactive({
   username: '',
-  nickname: '',
   status: ''
 })
 
@@ -147,11 +123,6 @@ const columns = [
     title: '用户名',
     dataIndex: 'username',
     key: 'username'
-  },
-  {
-    title: '昵称',
-    dataIndex: 'nickname',
-    key: 'nickname'
   },
   {
     title: '真实姓名',
@@ -200,7 +171,6 @@ const formData = reactive({
   id: null,
   username: '',
   realName: '',
-  nickname: '',
   email: '',
   phone: '',
   studentId: '',
@@ -214,7 +184,6 @@ const formData = reactive({
 const formRules = {
   username: [{ required: true, message: '请输入用户名' }],
   realName: [{ required: true, message: '请输入真实姓名' }],
-  nickname: [{ required: true, message: '请输入昵称' }],
   email: [
     { required: true, message: '请输入邮箱' },
     { type: 'email', message: '请输入正确的邮箱格式' }
@@ -231,10 +200,6 @@ const filteredStudents = computed(() => {
 
   if (searchForm.username) {
     result = result.filter((student) => student.username?.toLowerCase().includes(searchForm.username.toLowerCase()))
-  }
-
-  if (searchForm.nickname) {
-    result = result.filter((student) => student.nickname?.toLowerCase().includes(searchForm.nickname.toLowerCase()))
   }
 
   if (searchForm.status !== null && searchForm.status !== undefined && searchForm.status !== '') {
@@ -277,7 +242,6 @@ const handleSearch = () => {
 const handleReset = () => {
   Object.assign(searchForm, {
     username: '',
-    nickname: '',
     status: ''
   })
   handleSearch()
@@ -298,7 +262,6 @@ const showAddModal = () => {
     id: null,
     username: '',
     realName: '',
-    nickname: '',
     email: '',
     phone: '',
     studentId: '',
@@ -325,7 +288,6 @@ const handleResetPassword = async (record) => {
       const response = await resetPasswordService(record.id)
       if (response.code === 0) {
         message.success(`已重置学生 ${record.username} 的密码为：123456`)
-
       }
     }
   })
@@ -333,9 +295,7 @@ const handleResetPassword = async (record) => {
 
 // 切换状态
 const handleToggleStatus = async (record) => {
-  const response = record.status === 1
-    ? await disableUserService(record.id)
-    : await enableUserService(record.id)
+  const response = record.status === 1 ? await disableUserService(record.id) : await enableUserService(record.id)
   if (response.code === 0) {
     message.success(`学生 ${record.username} 已${record.status === 1 ? '禁用' : '启用'}`)
     loadStudents()
@@ -360,9 +320,7 @@ const handleDelete = async (record) => {
 const handleModalOk = async () => {
   await formRef.value.validate()
 
-  const response = isEdit.value
-    ? await updateUserService(formData)
-    : await addStudentService(formData)
+  const response = isEdit.value ? await updateUserService(formData) : await addStudentService(formData)
 
   if (response.code === 0) {
     message.success(isEdit.value ? '学生信息更新成功' : '学生添加成功')

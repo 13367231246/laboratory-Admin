@@ -10,22 +10,13 @@
 
       <!-- 搜索和筛选 -->
       <div class="search-section">
-        <a-input v-model:value="searchForm.username" placeholder="搜索用户名" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-input v-model:value="searchForm.username" placeholder="搜索用户名" allow-clear @change="handleSearch" class="search-input">
           <template #prefix>
             <search-outlined />
           </template>
         </a-input>
 
-        <a-input v-model:value="searchForm.nickname" placeholder="搜索昵称" allow-clear @change="handleSearch"
-          class="search-input">
-          <template #prefix>
-            <search-outlined />
-          </template>
-        </a-input>
-
-        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch"
-          class="search-input">
+        <a-select v-model:value="searchForm.status" placeholder="选择状态" allow-clear @change="handleSearch" class="search-input">
           <a-select-option :value="1">正常</a-select-option>
           <a-select-option :value="0">禁用</a-select-option>
         </a-select>
@@ -38,8 +29,7 @@
       </div>
 
       <!-- 教师列表 -->
-      <a-table :columns="columns" :data-source="filteredTeachers" :pagination="pagination" :loading="loading"
-        row-key="id" @change="handleTableChange">
+      <a-table :columns="columns" :data-source="filteredTeachers" :pagination="pagination" :loading="loading" row-key="id" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
             <a-tag :color="record.status === 1 ? 'green' : 'red'">
@@ -52,10 +42,8 @@
           <template v-else-if="column.key === 'action'">
             <a-space>
               <a-button type="link" size="small" @click="handleEdit(record)"> 编辑 </a-button>
-              <a-button type="link" size="small" @click="showAssignModal(record)"> 分配权限 </a-button>
               <a-button type="link" size="small" @click="handleResetPassword(record)"> 重置密码 </a-button>
-              <a-popconfirm :title="`确定要${record.status === 1 ? '禁用' : '启用'}该教师吗？`"
-                @confirm="handleToggleStatus(record)">
+              <a-popconfirm :title="`确定要${record.status === 1 ? '禁用' : '启用'}该教师吗？`" @confirm="handleToggleStatus(record)">
                 <a-button type="link" size="small" :danger="record.status === 1">
                   {{ record.status === 1 ? '禁用' : '启用' }}
                 </a-button>
@@ -67,14 +55,10 @@
     </a-card>
 
     <!-- 添加/编辑教师模态框 -->
-    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑教师' : '添加教师'" @ok="handleModalOk"
-      @cancel="handleModalCancel">
+    <a-modal v-model:open="modalVisible" :title="isEdit ? '编辑教师' : '添加教师'" @ok="handleModalOk" @cancel="handleModalCancel">
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-form-item label="用户名" name="username">
           <a-input v-model:value="formData.username" :disabled="isEdit" />
-        </a-form-item>
-        <a-form-item label="昵称" name="nickname">
-          <a-input v-model:value="formData.nickname" />
         </a-form-item>
         <a-form-item label="邮箱" name="email">
           <a-input v-model:value="formData.email" />
@@ -104,7 +88,6 @@
         </a-form-item>
       </a-form>
     </a-modal>
-
   </div>
 </template>
 
@@ -112,14 +95,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
-import {
-  listTeachersService,
-  addTeacherService,
-  updateUserService,
-  resetPasswordService,
-  disableUserService,
-  enableUserService
-} from '@/api/usermanage'
+import { listTeachersService, addTeacherService, updateUserService, resetPasswordService, disableUserService, enableUserService } from '@/api/usermanage'
 
 const loading = ref(false)
 const modalVisible = ref(false)
@@ -129,7 +105,6 @@ const formRef = ref()
 // 搜索表单
 const searchForm = reactive({
   username: '',
-  nickname: '',
   status: ''
 })
 
@@ -149,14 +124,9 @@ const columns = [
     key: 'username'
   },
   {
-    title: '昵称',
-    dataIndex: 'nickname',
-    key: 'nickname'
-  },
-  {
     title: '工号',
-    dataIndex: 'teacherId',
-    key: 'teacherId'
+    dataIndex: 'studentId',
+    key: 'studentId'
   },
   {
     title: '部门',
@@ -166,7 +136,8 @@ const columns = [
   {
     title: '职称',
     dataIndex: 'title',
-    key: 'title'
+    key: 'title',
+    customRender: ({ text }) => getTitleText(text)
   },
   {
     title: '邮箱',
@@ -195,7 +166,6 @@ const formData = reactive({
   id: null,
   username: '',
   realName: '',
-  nickname: '',
   email: '',
   phone: '',
   studentId: '',
@@ -208,7 +178,6 @@ const formData = reactive({
 const formRules = {
   username: [{ required: true, message: '请输入用户名' }],
   realName: [{ required: true, message: '请输入真实姓名' }],
-  nickname: [{ required: true, message: '请输入昵称' }],
   email: [
     { required: true, message: '请输入邮箱' },
     { type: 'email', message: '请输入正确的邮箱格式' }
@@ -251,10 +220,6 @@ const filteredTeachers = computed(() => {
     result = result.filter((teacher) => teacher.username?.toLowerCase().includes(searchForm.username.toLowerCase()))
   }
 
-  if (searchForm.nickname) {
-    result = result.filter((teacher) => teacher.nickname?.toLowerCase().includes(searchForm.nickname.toLowerCase()))
-  }
-
   if (searchForm.status !== null && searchForm.status !== undefined && searchForm.status !== '') {
     result = result.filter((teacher) => teacher.status === searchForm.status)
   }
@@ -273,7 +238,6 @@ const loadTeachers = async () => {
   loading.value = false
 }
 
-
 // 搜索
 const handleSearch = () => {
   pagination.current = 1
@@ -283,7 +247,6 @@ const handleSearch = () => {
 const handleReset = () => {
   Object.assign(searchForm, {
     username: '',
-    nickname: '',
     status: ''
   })
   handleSearch()
@@ -304,7 +267,6 @@ const showAddModal = () => {
     id: null,
     username: '',
     realName: '',
-    nickname: '',
     email: '',
     phone: '',
     studentId: '',
@@ -321,11 +283,6 @@ const handleEdit = (record) => {
   Object.assign(formData, record)
 }
 
-// 显示分配权限模态框
-const showAssignModal = (record) => {
-  message.info('实验室分配功能待实现')
-}
-
 // 重置密码
 const handleResetPassword = async (record) => {
   const response = await resetPasswordService(record.id)
@@ -336,9 +293,7 @@ const handleResetPassword = async (record) => {
 
 // 切换状态
 const handleToggleStatus = async (record) => {
-  const response = record.status === 1
-    ? await disableUserService(record.id)
-    : await enableUserService(record.id)
+  const response = record.status === 1 ? await disableUserService(record.id) : await enableUserService(record.id)
   if (response.code === 0) {
     message.success(`教师 ${record.username} 已${record.status === 1 ? '禁用' : '启用'}`)
     loadTeachers()
@@ -358,9 +313,7 @@ const handleDelete = (record) => {
 const handleModalOk = async () => {
   await formRef.value.validate()
 
-  const response = isEdit.value
-    ? await updateUserService(formData)
-    : await addTeacherService(formData)
+  const response = isEdit.value ? await updateUserService(formData) : await addTeacherService(formData)
 
   if (response.code === 0) {
     message.success(isEdit.value ? '教师信息更新成功' : '教师添加成功')

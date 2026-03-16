@@ -81,39 +81,41 @@
         <a-descriptions-item label="实验室名称">{{ currentApplication.labName }}</a-descriptions-item>
         <a-descriptions-item label="房间号">{{ currentApplication.labNumber }}</a-descriptions-item>
         <a-descriptions-item label="位置">{{ currentApplication.location || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="申请人角色">{{ currentApplication.applicantRole === 'teacher' ? '教师' : '学生' }}</a-descriptions-item>
-        <a-descriptions-item label="使用目的">{{ currentApplication.purpose }}</a-descriptions-item>
-        <a-descriptions-item label="课程名称">{{ currentApplication.courseName || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="班级名称">{{ currentApplication.className || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="学生人数">{{ currentApplication.studentCount ?? '-' }}</a-descriptions-item>
+        <a-descriptions-item label="申请人">{{ currentApplication.applicantRealName || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="角色">{{ currentApplication.applicantRole === 'teacher' ? '教师' : '学生' }}</a-descriptions-item>
+        <a-descriptions-item label="电话">{{ currentApplication.applicantPhone || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="目的">{{ currentApplication.purpose }}</a-descriptions-item>
+        <a-descriptions-item v-if="currentApplication.courseName" label="课程">{{ currentApplication.courseName || '-' }}</a-descriptions-item>
+        <a-descriptions-item v-if="currentApplication.className" label="班级">{{ currentApplication.className || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="人数">{{ currentApplication.studentCount ?? '-' }}</a-descriptions-item>
         <a-descriptions-item label="开始时间">{{ formatDateTime(currentApplication.startTime) }}</a-descriptions-item>
         <a-descriptions-item label="结束时间">{{ formatDateTime(currentApplication.endTime) }}</a-descriptions-item>
         <a-descriptions-item label="状态">
           <a-tag :color="getStatusColor(currentApplication.status)">{{ getStatusText(currentApplication.status) }}</a-tag>
         </a-descriptions-item>
-        <a-descriptions-item label="审核意见">{{ currentApplication.reviewComment || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="审核时间">{{ formatDateTime(currentApplication.reviewTime) }}</a-descriptions-item>
+        <a-descriptions-item v-if="currentApplication.reviewComment" label="审核意见">{{ currentApplication.reviewComment || '-' }}</a-descriptions-item>
+        <a-descriptions-item v-if="currentApplication.reviewTime" label="审核时间">{{ formatDateTime(currentApplication.reviewTime) }}</a-descriptions-item>
         <a-descriptions-item label="申请时间">{{ formatDateTime(currentApplication.createTime) }}</a-descriptions-item>
       </a-descriptions>
     </a-modal>
 
     <a-modal v-model:open="equipmentDetailsVisible" title="申请详情" :footer="null" width="640">
       <a-descriptions bordered :column="1">
-        <a-descriptions-item label="申请人">{{ currentEquipmentApplication.applicant || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="设备名称">{{ currentEquipmentApplication.equipmentName || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="申请人">{{ currentEquipmentApplication.applicantRealName || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="设备">{{ currentEquipmentApplication.equipmentName || '-' }}</a-descriptions-item>
         <a-descriptions-item label="数量">{{ currentEquipmentApplication.quantity ?? '-' }}</a-descriptions-item>
-        <a-descriptions-item label="使用类型">{{ currentEquipmentApplication.usageType || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="使用时间">{{ currentEquipmentApplication.usageTime || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="联系方式">{{ currentEquipmentApplication.contact || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="使用目的">{{ currentEquipmentApplication.purpose || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="特殊要求">{{ currentEquipmentApplication.specialRequirements || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="电话">{{ currentEquipmentApplication.applicantPhone || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="目的">{{ currentEquipmentApplication.purpose || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="特殊要求">{{ currentEquipmentApplication.specialRequirements || '无' }}</a-descriptions-item>
+        <a-descriptions-item label="开始时间">{{ currentEquipmentApplication.startTime || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="结束时间">{{ currentEquipmentApplication.endTime || '-' }}</a-descriptions-item>
         <a-descriptions-item label="状态">
           <a-tag :color="getEquipmentStatusColor(currentEquipmentApplication.status)">
             {{ getEquipmentStatusText(currentEquipmentApplication.status) }}
           </a-tag>
         </a-descriptions-item>
-        <a-descriptions-item label="审核意见">{{ currentEquipmentApplication.reviewComment || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="审核时间">{{ formatDateTime(currentEquipmentApplication.reviewTime) }}</a-descriptions-item>
+        <a-descriptions-item v-if="currentApplication.reviewComment" label="审核意见">{{ currentEquipmentApplication.reviewComment || '-' }}</a-descriptions-item>
+        <a-descriptions-item v-if="currentApplication.reviewTime" label="审核时间">{{ formatDateTime(currentEquipmentApplication.reviewTime) }}</a-descriptions-item>
         <a-descriptions-item label="申请时间">{{ formatDateTime(currentEquipmentApplication.createTime) }}</a-descriptions-item>
       </a-descriptions>
     </a-modal>
@@ -172,10 +174,11 @@ const currentEquipmentApplication = ref({})
 const equipmentRejectReason = ref('')
 
 const labColumns = [
+  { title: '姓名', dataIndex: 'applicantRealName', key: 'applicantRealName', width: 90 },
   { title: '实验室', dataIndex: 'labName', key: 'labName' },
   { title: '房间号', dataIndex: 'labNumber', key: 'labNumber', width: 90 },
   { title: '地址', dataIndex: 'location', key: 'location', ellipsis: true },
-  { title: '角色', key: 'applicantRole', width: 100 },
+  { title: '角色', key: 'applicantRole', width: 60 },
   { title: '使用目的', key: 'purpose', width: 100 },
   { title: '课程/班级', key: 'courseClass', width: 120 },
   { title: '人数', dataIndex: 'studentCount', key: 'studentCount', width: 70 },
@@ -185,12 +188,12 @@ const labColumns = [
 ]
 
 const equipmentColumns = [
-  { title: '申请人', dataIndex: 'applicant', key: 'applicant', width: 120 },
+  { title: '申请人', dataIndex: 'applicantRealName', key: 'applicantRealName', width: 120 },
   { title: '设备名称', dataIndex: 'equipmentName', key: 'equipmentName', width: 150 },
+  { title: '设备类型', dataIndex: 'equipmentType', key: 'equipmentType', width: 150 },
   { title: '数量', dataIndex: 'quantity', key: 'quantity', width: 80 },
   { title: '用途', dataIndex: 'purpose', key: 'purpose', ellipsis: true },
   { title: '状态', key: 'status', width: 90 },
-  { title: '审核意见', key: 'reviewComment', width: 120, ellipsis: true },
   { title: '申请时间', key: 'createTime', width: 160 },
   { title: '操作', key: 'action', width: 220, fixed: 'right' }
 ]

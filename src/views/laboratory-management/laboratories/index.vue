@@ -18,13 +18,6 @@
           </template>
         </a-input>
 
-        <a-select v-model:value="searchForm.type" placeholder="选择类型" allow-clear @change="handleSearch" class="search-input">
-          <a-select-option value="chemistry">化学</a-select-option>
-          <a-select-option value="physics">物理</a-select-option>
-          <a-select-option value="biology">生物</a-select-option>
-          <a-select-option value="computer">计算机</a-select-option>
-        </a-select>
-
         <a-button type="primary" @click="handleSearch">
           <search-outlined />
           搜索
@@ -167,8 +160,7 @@ const previewImage = ref('')
 
 // 搜索表单
 const searchForm = reactive({
-  name: '',
-  type: ''
+  name: ''
 })
 
 // 分类表单数据
@@ -279,10 +271,6 @@ const filteredLaboratories = computed(() => {
     result = result.filter((lab) => lab.labName?.toLowerCase().includes(searchForm.name.toLowerCase()))
   }
 
-  if (searchForm.type) {
-    result = result.filter((lab) => lab.type === searchForm.type)
-  }
-
   return result
 })
 
@@ -380,8 +368,7 @@ const handleSearch = () => {
 // 重置搜索
 const handleReset = () => {
   Object.assign(searchForm, {
-    name: '',
-    type: ''
+    name: ''
   })
   handleSearch()
 }
